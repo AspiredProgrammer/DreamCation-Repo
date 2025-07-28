@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
 // TODO show 10 results then a button to show more
 const HotelPage = () => {
@@ -34,6 +35,16 @@ const HotelPage = () => {
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
+      <div style={{ marginBottom: "20px" }}>
+        <Link to="/" style={{ 
+          textDecoration: "none", 
+          color: "#667eea", 
+          fontWeight: "bold",
+          fontSize: "16px"
+        }}>
+          ← Back to Home
+        </Link>
+      </div>
       <h1>Hotel Finder</h1>
       <input
         value={city}
