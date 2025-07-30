@@ -5,7 +5,6 @@ require("dotenv").config();
 
 const app = express();
 app.use(cors());
-
 app.get("/api/hotels", async (req, res, next) => {
   try {
     const { city } = req.query;

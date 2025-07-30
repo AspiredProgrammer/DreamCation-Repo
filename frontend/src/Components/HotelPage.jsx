@@ -1,9 +1,14 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
+
+// import "../Styles/HotelPage.css";
 // TODO show 10 results then a button to show more
 const HotelPage = () => {
-  const [city, setCity] = useState("Toronto");
+  // const searchParams = new URLSearchParams(window.location.href);
+  
+  // const queriedCity = searchParams.get('city')
+  const [city, setCity] = useState('');
   const [hotels, setHotels] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -32,6 +37,18 @@ const HotelPage = () => {
       fetchHotelsByCity();
     }
   };
+// using use Effect, grab the city from the url and fetch hotel data with that data
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.href);
+    console.log(searchParams)
+    const queriedCity = searchParams.get('city')
+    console.log(queriedCity)
+    if (queriedCity !== ''){
+      setCity(queriedCity);
+      fetchHotelsByCity();
+    }
+  },[])
+
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
