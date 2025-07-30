@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../Styles/HomePage.css";
-import Icon from "../assets/dreamcation-logo.png";
+import logo from "../assets/dreamcation-logo.png";
 const HomePage = () => {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [selectedDestination, setSelectedDestination] = useState("");
@@ -48,7 +48,7 @@ const HomePage = () => {
 			<nav className="navbar">
 				<div className="nav-container">
 					<div className="nav-logo">
-						<Icon />
+						<img src={logo} width={60} height={40} alt="logo" />
 						<h2>DreamCation</h2>
 					</div>
 					<div className={`nav-menu ${isMenuOpen ? "active" : ""}`}>

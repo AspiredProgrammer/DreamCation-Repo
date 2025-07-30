@@ -52,10 +52,18 @@
 	background-clip: text;
 }
 
+.nav-logo {
+	display: flex;
+	/* flex-direction: row; */
+	/* justify-content: space-between; */
+	padding-right: 15;
+}
+
 .nav-menu {
 	display: flex;
 	list-style: none;
 	gap: 2rem;
+	margin-left: 305px;
 }
 
 .nav-link {
