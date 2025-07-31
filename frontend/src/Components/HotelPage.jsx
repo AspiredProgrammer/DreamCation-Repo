@@ -1,20 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import NavBar from "./Navbar";
+import Footer from "./Footer";
 
 // import "../Styles/HotelPage.css";
 // TODO show 10 results then a button to show more
 const HotelPage = () => {
-	// const searchParams = new URLSearchParams(window.location.href);
-
-	// const queriedCity = searchParams.get('city')
-	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [city, setCity] = useState("");
 	const [hotels, setHotels] = useState([]);
 	const [loading, setLoading] = useState(false);
-
-	const toggleMenu = () => {
-		setIsMenuOpen(!isMenuOpen);
-	};
 
 	const fetchHotelsByCity = async () => {
 		setLoading(true);
@@ -54,38 +48,8 @@ const HotelPage = () => {
 	}, []);
 
 	return (
-		<div className="homepage">
-			{/* Navigation */}
-			<nav className="navbar">
-				<div className="nav-container">
-					<div className="nav-logo">
-						<h2>DreamCation</h2>
-					</div>
-					<div className={`nav-menu ${isMenuOpen ? "active" : ""}`}>
-						<Link to="/" className="nav-link">
-							Home
-						</Link>
-						<a href="#destinations" className="nav-link">
-							Destinations
-						</a>
-						<Link to="/hotels" className="nav-link">
-							Hotels
-						</Link>
-						<a href="#about" className="nav-link">
-							About
-						</a>
-						<a href="#contact" className="nav-link">
-							Contact
-						</a>
-					</div>
-					<div className="nav-toggle" onClick={toggleMenu}>
-						<span className="bar"></span>
-						<span className="bar"></span>
-						<span className="bar"></span>
-					</div>
-				</div>
-			</nav>
-
+		<div className="base">
+			<NavBar />
 			<div style={{ marginBottom: "20px" }}>
 				<Link
 					to="/"
@@ -99,10 +63,10 @@ const HotelPage = () => {
 					← Back to Home
 				</Link>
 			</div>
-			<section id="home" className="hero">
-				<div className="hero-content">
-					<div className="hero-text">
-						<h1 className="hero-title">Hotel Finder</h1>
+			<section id="hotel" className="main-box">
+				<div className="content">
+					<div>
+						<h1 className="main-title">Hotel Finder</h1>
 						<input
 							value={city}
 							onChange={(e) => setCity(e.target.value)}
@@ -148,6 +112,7 @@ const HotelPage = () => {
 					</div>
 				</div>
 			</section>
+			<Footer />
 		</div>
 	);
 };
