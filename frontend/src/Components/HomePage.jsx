@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../Styles/HomePage.css";
 import logo from "../assets/dreamcation-logo.png";
+
 const HomePage = () => {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [selectedDestination, setSelectedDestination] = useState("");
