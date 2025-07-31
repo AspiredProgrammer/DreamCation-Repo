@@ -18,6 +18,7 @@ const HomePage = () => {
 	const handleSearch = (e) => {
 		e.preventDefault();
 		if (selectedDestination && checkInDate && checkOutDate) {
+			//note, add bootstrap to replace default alerts with nice ones
 			alert(
 				`Searching for ${guests} guests in ${selectedDestination} from ${checkInDate} to ${checkOutDate}`
 			);
@@ -56,9 +57,11 @@ const HomePage = () => {
 						<Link to="/" className="nav-link">
 							Home
 						</Link>
+						{/*
 						<a href="#destinations" className="nav-link">
 							Destinations
 						</a>
+						*/}
 						<Link to="/hotels" className="nav-link">
 							Hotels
 						</Link>
