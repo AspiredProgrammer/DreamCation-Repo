@@ -2,7 +2,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 // // Bootstrap Bundle JS
 import "bootstrap/dist/js/bootstrap.bundle.min";
-import "./App.css";
+import "./Styles/MainStyles.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import HotelPage from "./pages/HotelPage";
@@ -11,17 +11,17 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 
 function App() {
-	return (
-		<Router>
-			<Routes>
-				<Route path="/" element={<HomePage />} />
-				<Route path="/hotels" element={<HotelPage />} />
-				<Route path="/account" element={<AccountPage />} />
-				<Route path="/login" element={<LoginPage />} />
-				<Route path="/register" element={<RegisterPage />} />
-			</Routes>
-		</Router>
-	);
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/hotels" element={<HotelPage />} />
+        <Route path="/account" element={<AccountPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+      </Routes>
+    </Router>
+  );
 }
 
 export default App;
