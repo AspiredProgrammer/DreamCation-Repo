@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-// import "../Styles/HomePage.css";
-import NavBar from "./Navbar";
-import Footer from "./Footer";
+
+import NavBar from "../Components/Navbar";
+import Footer from "../Components/Footer";
 
 const AccountPage = () => {
 	return (
 		<div className="base">
-			<div style={{ marginBottom: "20px" }}>
+			{/* <NavBar /> */}
+			<div style={{ margin: "20px" }}>
 				<Link
 					to="/"
 					style={{
@@ -20,7 +21,6 @@ const AccountPage = () => {
 					← Back to Home
 				</Link>
 			</div>
-			<NavBar />
 			<section id="home" className="main-box">
 				<div className="content">
 					<div>

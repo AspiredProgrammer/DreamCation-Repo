@@ -4,9 +4,11 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import HomePage from "./Components/HomePage";
-import HotelPage from "./Components/HotelPage";
-import AccountPage from "./Components/AccountPage";
+import HomePage from "./pages/HomePage";
+import HotelPage from "./pages/HotelPage";
+import AccountPage from "./pages/AccountPage";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
 
 function App() {
 	return (
@@ -15,6 +17,8 @@ function App() {
 				<Route path="/" element={<HomePage />} />
 				<Route path="/hotels" element={<HotelPage />} />
 				<Route path="/account" element={<AccountPage />} />
+				<Route path="/login" element={<LoginPage />} />
+				<Route path="/register" element={<RegisterPage />} />
 			</Routes>
 		</Router>
 	);

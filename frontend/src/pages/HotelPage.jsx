@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import NavBar from "./Navbar";
-import Footer from "./Footer";
+import NavBar from "../Components/Navbar";
+import Footer from "../Components/Footer";
 
 // import "../Styles/HotelPage.css";
 // TODO show 10 results then a button to show more
@@ -49,8 +49,8 @@ const HotelPage = () => {
 
 	return (
 		<div className="base">
-			<NavBar />
-			<div style={{ marginBottom: "20px" }}>
+			{/* <NavBar /> */}
+			<div style={{ margin: "20px" }}>
 				<Link
 					to="/"
 					style={{
