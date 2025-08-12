@@ -10,7 +10,7 @@ app.use(cors());
 
 //-----------------------------------------------
 /*
- firstName VARCHAR(100) NOT NULL,
+	firstName VARCHAR(100) NOT NULL,
     lastName VARCHAR(100) NOT NULL,
     username VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(100) NOT NULL,
@@ -18,7 +18,7 @@ app.use(cors());
     phoneNum VARCHAR(15) NOT NULL
 
 */
-// app.post("/register", (req, res) => {});
+
 //-----------------------------------------------
 app.get("/api/hotels", async (req, res, next) => {
 	try {
