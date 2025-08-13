@@ -1,30 +1,25 @@
 const express = require("express");
 const fetch = require("node-fetch");
 const cors = require("cors");
+const Amadeus = require("amadeus"); 
 
 const app = express();
 
 require("dotenv").config();
 
 app.use(cors());
-app.use(express.json());
 
-// Middleware to log API requests
-app.use((req, res, next) => {
-	console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
-	next();
-});
+//-----------------------------------------------
+/*
+ firstName VARCHAR(100) NOT NULL,
+    lastName VARCHAR(100) NOT NULL,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    phoneNum VARCHAR(15) NOT NULL
 
-// Health check endpoint
-app.get("/api/health", (req, res) => {
-	res.json({
-		status: "OK",
-		message: "DreamCation API is running",
-		timestamp: new Date().toISOString(),
-		apiKeyConfigured: !!process.env.API_KEY
-	});
-});
-
+*/
+// app.post("/register", (req, res) => {});
 //-----------------------------------------------
 app.get("/api/hotels", async (req, res, next) => {
 	try {
@@ -119,91 +114,21 @@ app.get("/api/hotels", async (req, res, next) => {
 					const detailsRes = await fetch(detailsUrl);
 					const detailsData = await detailsRes.json();
 
-					if (detailsData.status === 'OK' && detailsData.result) {
-						return {
-							name: detailsData.result.name || place.name,
-							vicinity: detailsData.result.vicinity || place.vicinity,
-							url: detailsData.result.url,
-							place_id: place.place_id,
-							rating: place.rating,
-							price_level: place.price_level,
-							types: place.types,
-							photos: place.photos ? place.photos.slice(0, 1) : []
-						};
-					} else {
-						// Fallback to basic place data if details fail
-						return {
-							name: place.name,
-							vicinity: place.vicinity,
-							url: null,
-							place_id: place.place_id,
-							rating: place.rating,
-							price_level: place.price_level,
-							types: place.types,
-							photos: place.photos ? place.photos.slice(0, 1) : []
-						};
-					}
-				} catch (error) {
-					console.error(`Error fetching details for hotel ${index}:`, error);
-					// Return basic data if details fetch fails
-					return {
-						name: place.name,
-						vicinity: place.vicinity,
-						url: null,
-						place_id: place.place_id,
-						rating: place.rating,
-						price_level: place.price_level,
-						types: place.types,
-						photos: place.photos ? place.photos.slice(0, 1) : []
-					};
-				}
+				return {
+					name: detailsData.result.name,
+					vicinity: detailsData.result.vicinity,
+					url: detailsData.result.url,
+					place_id: place.place_id,
+				};
 			})
 		);
 
-		console.log(`Successfully processed ${hotelsWithUrls.length} hotels for ${cityName}`);
-
-		// Return pagination info along with hotels
-		const totalHotels = placesData.results.length;
-		const hasMore = endIndex < totalHotels;
-
-		res.json({
-			hotels: hotelsWithUrls,
-			pagination: {
-				currentPage: pageNum,
-				limit: limitNum,
-				totalHotels: totalHotels,
-				hasMore: hasMore,
-				showing: `${startIndex + 1}-${Math.min(endIndex, totalHotels)} of ${totalHotels}`
-			}
-		});
-
+		res.json(hotelsWithUrls);
 	} catch (error) {
 		console.error("Error in /api/hotels:", error);
 		next(error);
 	}
 });
-
-//-----------------------------------------------
-// Global error handler
-//-----------------------------------------------
-app.use((error, req, res, next) => {
-	console.error("Global error handler:", error);
-	res.status(500).json({
-		error: "Internal server error",
-		message: "Something went wrong. Please try again later.",
-		timestamp: new Date().toISOString()
-	});
-});
-
-// 404 handler for undefined routes
-app.use((req, res) => {
-	res.status(404).json({
-		error: "Route not found",
-		message: `The route ${req.method} ${req.path} does not exist`,
-		timestamp: new Date().toISOString()
-	});
-});
-
 //-----------------------------------------------
 //Listening:
 //-----------------------------------------------

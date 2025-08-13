@@ -23,6 +23,9 @@ const NavBar = () => {
 					<Link to="/hotels" className="nav-link">
 						Hotels
 					</Link>
+					<Link to="/flights" className="nav-link">
+						Flights
+						</Link>
 					<Link to="/account" className="nav-link">
 						Account
 					</Link>

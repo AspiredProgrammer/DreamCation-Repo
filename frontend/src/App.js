@@ -9,6 +9,7 @@ import HotelPage from "./pages/HotelPage";
 import AccountPage from "./pages/AccountPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
+import FlightsPage from "./pages/FlightsPage";
 
 function App() {
   return (
@@ -18,7 +19,9 @@ function App() {
         <Route path="/hotels" element={<HotelPage />} />
         <Route path="/account" element={<AccountPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/flights" element={<FlightsPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        
       </Routes>
     </Router>
   );
