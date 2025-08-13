@@ -1,23 +1,20 @@
 const express = require("express");
 const fetch = require("node-fetch");
 const cors = require("cors");
+const connection = require("./database");
+const bcrypt = require("bcryptjs");
+const passport = require("passport");
+require("dotenv").config();
+
+const router = express.Router();
 
 const app = express();
 
-require("dotenv").config();
-
+app.use(express.json());
+app.use(passport.initialize());
 app.use(cors());
 
 //-----------------------------------------------
-/*
-	firstName VARCHAR(100) NOT NULL,
-    lastName VARCHAR(100) NOT NULL,
-    username VARCHAR(50) NOT NULL UNIQUE,
-    password VARCHAR(100) NOT NULL,
-    email VARCHAR(100) NOT NULL,
-    phoneNum VARCHAR(15) NOT NULL
-
-*/
 
 //-----------------------------------------------
 app.get("/api/hotels", async (req, res, next) => {
