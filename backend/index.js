@@ -8,6 +8,13 @@ const app = express();
 require("dotenv").config();
 
 app.use(cors());
+app.use(express.json());   
+
+const amadeus = new Amadeus({
+	clientId: process.env.AMA_KEY,
+	clientSecret: process.env.AMA_SECRET,
+	hostname: process.env.AMA_HOST === "production" ? "production" : "test",
+  });
 
 //-----------------------------------------------
 /*
