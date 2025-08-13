@@ -1,12 +1,20 @@
 const express = require("express");
 const fetch = require("node-fetch");
 const cors = require("cors");
+const Amadeus = require("amadeus"); 
 
 const app = express();
 
 require("dotenv").config();
 
 app.use(cors());
+app.use(express.json());   
+
+const amadeus = new Amadeus({
+	clientId: process.env.AMA_KEY,
+	clientSecret: process.env.AMA_SECRET,
+	hostname: process.env.AMA_HOST === "production" ? "production" : "test",
+  });
 
 //-----------------------------------------------
 /*
@@ -56,12 +64,40 @@ app.get("/api/hotels", async (req, res, next) => {
 				};
 			})
 		);
-
 		res.json(hotelsWithUrls);
 	} catch (error) {
 		next(error);
 	}
 });
+
+// -----------------------------------------------
+// Flights: GET /api/flights?origin=YYZ&dest=LAX&date=2025-09-10&adults=1
+app.get("/api/flights", async (req, res) => {
+	try {
+	  const { origin, dest, date, adults = "1", returnDate, currencyCode } = req.query;
+	  if (!origin || !dest || !date) {
+		return res.status(400).json({ error: "origin, dest, and date are required" });
+	  }
+  
+	  const params = {
+		originLocationCode: origin.toUpperCase(),
+		destinationLocationCode: dest.toUpperCase(),
+		departureDate: date,            // YYYY-MM-DD
+		adults: String(adults),
+		max: 20,
+		...(returnDate ? { returnDate } : {}),
+		...(currencyCode ? { currencyCode } : {}),
+	  };
+  
+	  const response = await amadeus.shopping.flightOffersSearch.get(params);
+	  res.json(JSON.parse(response.body)); // Amadeus SDK returns JSON string in body
+	} catch (err) {
+	  console.error("Amadeus error:", err?.response?.result || err.message);
+	  res.status(500).json({ error: "Amadeus search failed", details: err?.response?.result || err.message });
+	}
+  });
+  // -----------------------------------------------
+  
 //-----------------------------------------------
 //Listening:
 //-----------------------------------------------
