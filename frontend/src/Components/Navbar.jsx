@@ -12,10 +12,10 @@ const NavBar = () => {
 	return (
 		<nav className="navbar">
 			<div className="nav-container">
-				<div className="nav-logo">
+				<Link to="/" className="nav-logo">
 					<img src={logo} width={60} height={40} alt="logo" />
 					<h2>DreamCation</h2>
-				</div>
+				</Link>
 				<div className={`nav-menu ${isMenuOpen ? "active" : ""}`}>
 					<Link to="/" className="nav-link">
 						Home
