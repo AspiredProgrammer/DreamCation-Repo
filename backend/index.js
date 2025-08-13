@@ -1,20 +1,20 @@
 const express = require("express");
 const fetch = require("node-fetch");
 const cors = require("cors");
-const Amadeus = require("amadeus"); 
+const Amadeus = require("amadeus");
 
 const app = express();
 
 require("dotenv").config();
 
 app.use(cors());
-app.use(express.json());   
+app.use(express.json());
 
 const amadeus = new Amadeus({
 	clientId: process.env.AMA_KEY,
 	clientSecret: process.env.AMA_SECRET,
 	hostname: process.env.AMA_HOST === "production" ? "production" : "test",
-  });
+});
 
 //-----------------------------------------------
 /*
@@ -33,10 +33,10 @@ app.get("/api/hotels", async (req, res, next) => {
 		const { city, page = 1, limit = 10 } = req.query;
 
 		// Validate input
-		if (!city || typeof city !== 'string' || city.trim().length === 0) {
+		if (!city || typeof city !== "string" || city.trim().length === 0) {
 			return res.status(400).json({
 				error: "City parameter is required",
-				message: "Please provide a valid city name"
+				message: "Please provide a valid city name",
 			});
 		}
 
@@ -45,7 +45,7 @@ app.get("/api/hotels", async (req, res, next) => {
 			console.error("Google Maps API key is not configured");
 			return res.status(500).json({
 				error: "API configuration error",
-				message: "Google Maps API key is not configured"
+				message: "Google Maps API key is not configured",
 			});
 		}
 
@@ -53,19 +53,28 @@ app.get("/api/hotels", async (req, res, next) => {
 		console.log(`Searching for hotels in: ${cityName}`);
 
 		// Step 1: Geocode the city to get coordinates
-		const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(cityName)}&key=${process.env.API_KEY}`;
-		console.log("Geocoding URL:", geocodeUrl.replace(process.env.API_KEY, 'API_KEY_HIDDEN'));
+		const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+			cityName
+		)}&key=${process.env.API_KEY}`;
+		console.log(
+			"Geocoding URL:",
+			geocodeUrl.replace(process.env.API_KEY, "API_KEY_HIDDEN")
+		);
 
 		const geoRes = await fetch(geocodeUrl);
 		const geoData = await geoRes.json();
 
-		if (geoData.status !== 'OK' || !geoData.results.length) {
-			console.log(`Geocoding failed for ${cityName}:`, geoData.status, geoData.error_message);
+		if (geoData.status !== "OK" || !geoData.results.length) {
+			console.log(
+				`Geocoding failed for ${cityName}:`,
+				geoData.status,
+				geoData.error_message
+			);
 			return res.status(404).json({
 				error: "City not found",
 				message: `Could not find location for "${cityName}". Please check the spelling and try again.`,
 				status: geoData.status,
-				details: geoData.error_message
+				details: geoData.error_message,
 			});
 		}
 
@@ -74,18 +83,25 @@ app.get("/api/hotels", async (req, res, next) => {
 
 		// Step 2: Search for nearby hotels
 		const placesUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=5000&type=lodging&key=${process.env.API_KEY}`;
-		console.log("Places search URL:", placesUrl.replace(process.env.API_KEY, 'API_KEY_HIDDEN'));
+		console.log(
+			"Places search URL:",
+			placesUrl.replace(process.env.API_KEY, "API_KEY_HIDDEN")
+		);
 
 		const placesRes = await fetch(placesUrl);
 		const placesData = await placesRes.json();
 
-		if (placesData.status !== 'OK') {
-			console.log(`Places search failed for ${cityName}:`, placesData.status, placesData.error_message);
+		if (placesData.status !== "OK") {
+			console.log(
+				`Places search failed for ${cityName}:`,
+				placesData.status,
+				placesData.error_message
+			);
 			return res.status(500).json({
 				error: "Places API error",
 				message: "Failed to search for hotels. Please try again later.",
 				status: placesData.status,
-				details: placesData.error_message
+				details: placesData.error_message,
 			});
 		}
 
@@ -98,8 +114,8 @@ app.get("/api/hotels", async (req, res, next) => {
 					limit: parseInt(limit),
 					totalHotels: 0,
 					hasMore: false,
-					showing: "0 of 0"
-				}
+					showing: "0 of 0",
+				},
 			});
 		}
 
@@ -112,7 +128,12 @@ app.get("/api/hotels", async (req, res, next) => {
 		const endIndex = startIndex + limitNum;
 		const paginatedResults = placesData.results.slice(startIndex, endIndex);
 
-		console.log(`Showing page ${pageNum}: hotels ${startIndex + 1}-${Math.min(endIndex, placesData.results.length)} of ${placesData.results.length}`);
+		console.log(
+			`Showing page ${pageNum}: hotels ${startIndex + 1}-${Math.min(
+				endIndex,
+				placesData.results.length
+			)} of ${placesData.results.length}`
+		);
 
 		const hotelsWithUrls = await Promise.all(
 			paginatedResults.map(async (place, index) => {
@@ -121,12 +142,15 @@ app.get("/api/hotels", async (req, res, next) => {
 					const detailsRes = await fetch(detailsUrl);
 					const detailsData = await detailsRes.json();
 
-				return {
-					name: detailsData.result.name,
-					vicinity: detailsData.result.vicinity,
-					url: detailsData.result.url,
-					place_id: place.place_id,
-				};
+					return {
+						name: detailsData.result.name,
+						vicinity: detailsData.result.vicinity,
+						url: detailsData.result.url,
+						place_id: place.place_id,
+					};
+				} catch (error) {
+					console.error("Error in hotelsWithUrls: ", error);
+				}
 			})
 		);
 
