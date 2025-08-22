@@ -7,7 +7,7 @@ import NavBar from "../Components/Navbar";
 import Footer from "../Components/Footer";
 
 const HomePage = () => {
-	const [selectedDestination, setSelectedDestination] = useState("");
+	const [destination, setDestination] = useState("");
 	const [checkInDate, setCheckInDate] = useState("");
 	const [checkOutDate, setCheckOutDate] = useState("");
 	const [guests, setGuests] = useState(2);
@@ -15,32 +15,15 @@ const HomePage = () => {
 
 	const handleSearch = (e) => {
 		e.preventDefault();
-		if (selectedDestination && checkInDate && checkOutDate) {
-			//note, add bootstrap to replace default alerts with nice ones
-			alert(
-				`Searching for ${guests} guests in ${selectedDestination} from ${checkInDate} to ${checkOutDate}`
-			);
+		if (destination && checkInDate && checkOutDate) {
 			// Navigate to hotel page with search parameters
-			navigate("/hotels");
+			navigate(`/hotels?city=${encodeURIComponent(destination.trim())}`);
 		} else {
 			alert("Please fill in all required fields");
 		}
 	};
 
-	const destinations = [
-		{ value: "", label: "Select Destination" },
-		{ value: "bali", label: "Bali, Indonesia" },
-		{ value: "santorini", label: "Santorini, Greece" },
-		{ value: "maldives", label: "Maldives" },
-		{ value: "paris", label: "Paris, France" },
-		{ value: "tokyo", label: "Tokyo, Japan" },
-		{ value: "new-york", label: "New York, USA" },
-		{ value: "london", label: "London, UK" },
-		{ value: "dubai", label: "Dubai, UAE" },
-		{ value: "singapore", label: "Singapore" },
-		{ value: "bangkok", label: "Bangkok, Thailand" },
-		{ value: "sydney", label: "Sydney, Australia" },
-	];
+
 
 	return (
 		<div className="homepage">
@@ -65,18 +48,14 @@ const HomePage = () => {
 							<div className="form-grid">
 								<div className="form-group">
 									<label htmlFor="destination">Destination</label>
-									<select
+									<input
+										type="text"
 										id="destination"
-										value={selectedDestination}
-										onChange={(e) => setSelectedDestination(e.target.value)}
+										value={destination}
+										onChange={(e) => setDestination(e.target.value)}
+										placeholder="Enter city name (e.g., New York, London, Tokyo)"
 										required
-									>
-										{destinations.map((dest) => (
-											<option key={dest.value} value={dest.value}>
-												{dest.label}
-											</option>
-										))}
-									</select>
+									/>
 								</div>
 
 								<div className="form-group">
