@@ -1,6 +1,6 @@
 const express = require("express");
 require("dotenv").config();
-const mysql2 = require("mysql2");
+const mysql = require("mysql2/promise");
 // const bodyParser = require("body-parser");
 const app = express();
 // app.use(bodyParser.json());
@@ -8,22 +8,33 @@ const app = express();
 // console.log(process.env.DB_PASSWORD);
 
 //MySQL Connection Set Up:
-const db = mysql2.createConnection({
-	host: "localhost",
-	user: "root",
-	password: process.env.DB_PASSWORD,
-	database: "dreamdb",
-});
+async function connect_query() {
+	let connection;
+	try {
+		connection = await mysql.createConnection({
+			host: "localhost",
+			user: "root",
+			password: process.env.DB_PASSWORD,
+			database: "dreamdb",
+		});
+		console.log("Connected to database!");
+		const [rows, fields] = await connection.execute("SELECT * FROM users");
+		console.log("Query results: ", rows);
+	} catch (err) {
+		console.error("Error: ", err);
+	}
+}
 
+connect_query();
 // module.exports = pool.promise();
 
-db.connect((err) => {
-	if (err) {
-		console.error("Error connecting to MySQL:", err);
-		return;
-	}
-	console.log("Connected to MySQL database");
-});
+// db.connect((err) => {
+// 	if (err) {
+// 		console.error("Error connecting to MySQL:", err);
+// 		return;
+// 	}
+// 	console.log("Connected to MySQL database");
+// });
 
 //-----------------------------------------------
 //Fetch users from users table:
@@ -40,8 +51,8 @@ db.connect((err) => {
 // 	});
 // });
 
-app.listen(3306, () => {
-	console.log(`Database server running on port 3306`);
-});
+// app.listen(3306, () => {
+// 	console.log(`Database server running on port 3306`);
+// });
 
-module.exports = db;
+// module.exports = db;
