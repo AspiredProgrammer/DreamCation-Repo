@@ -10,6 +10,7 @@ import AccountPage from "./pages/AccountPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import FlightsPage from "./pages/FlightsPage";
+import AttractionsPage from "./pages/AttractionsPage";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/account" element={<AccountPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/flights" element={<FlightsPage />} />
+        <Route path="/attractions" element={<AttractionsPage/>} />
         <Route path="/register" element={<RegisterPage />} />
         
       </Routes>
