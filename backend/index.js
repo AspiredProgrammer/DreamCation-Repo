@@ -7,11 +7,13 @@ const bcrypt = require("bcryptjs");
 const passport = require("passport");
 require("dotenv").config();
 
+const app = express();
+
 const router = express.Router();
 const Amadeus = require("amadeus");
 app.use(express.json());
 app.use(passport.initialize());
-const app = express();
+
 app.use(cors());
 app.use(express.json());
 
