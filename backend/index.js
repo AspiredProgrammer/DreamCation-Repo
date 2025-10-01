@@ -6,6 +6,7 @@ const cors = require("cors");
 const connection = require("./config/db_set_up");
 const bcrypt = require("bcryptjs");
 const passport = require("passport");
+const session = require("express-session");
 
 const api_routes = require("./routes/api_routes");
 const user_routes = require("./routes/user_routes");
@@ -15,7 +16,6 @@ const user_routes = require("./routes/user_routes");
 const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-// app.use(passport.initialize());
 app.use(cors());
 
 app.use("/user", user_routes);
@@ -29,7 +29,7 @@ app.use(
 		cookie: {},
 	})
 );
-require("./passport_config/passport")(passport);
+require("./config/passport_config")(passport);
 app.use(passport.initialize());
 app.use(passport.session());
 

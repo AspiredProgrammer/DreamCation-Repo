@@ -1,4 +1,5 @@
 const express = require("express");
+const router = express.Router();
 const connect_query = require("../config/db_set_up");
 const { check, validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
