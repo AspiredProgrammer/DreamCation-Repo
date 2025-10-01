@@ -1,8 +1,9 @@
 const express = require("express");
-const createConnection = require("../database");
+const connect_query = require("../config/db_set_up");
 const { check, validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
 
+//potentially move this somewhere else?
 const session = require("express-session");
 router.use(
 	session({
@@ -36,7 +37,7 @@ router.post("/register", async (req, res) => {
 	}
 
 	try {
-		const connection = await createConnection();
+		const connection = await connect_query();
 
 		//here we check whether the user already exists:
 		let existingUser = await connection.execute(
@@ -56,7 +57,7 @@ router.post("/register", async (req, res) => {
 				req.body.firstName,
 				req.body.lastName,
 				req.body.username,
-				req.body.password,
+				hashedPassword,
 				req.body.email,
 				req.body.phoneNum,
 			]

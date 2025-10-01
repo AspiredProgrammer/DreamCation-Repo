@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-import Navbar from "../Components/Navbar";
+// import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";
 
 const RegisterPage = () => {
@@ -53,9 +53,40 @@ const RegisterPage = () => {
 		}
 
 		if (fieldErrors.length > 0) {
-			setErrors(fieldErrors.map((msg, i) => ({ id: i, msg })));
+			setErrors(fieldErrors.map((text, i) => ({ id: i, text })));
+			return;
 		}
-		return;
+
+		try {
+			const response = await fetch(`${process.env.ENDPOINT}/register`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(form),
+			});
+
+			const data = await response.json();
+			if (!response.ok) {
+				setErrors([{ id: 0, msg: data }]);
+			} else {
+				console.log("User registered successfully");
+				setMsg("Registration successful!");
+
+				setErrors([]);
+				setForm({
+					f_name: "",
+					l_name: "",
+					username: "",
+					password: "",
+					email: "",
+					phoneNum: "",
+				});
+			}
+		} catch (error) {
+			console.error("Error registering user:", error);
+			setErrors([{ id: 0, msg: "Something went wrong." }]);
+		}
 	};
 
 	const handleChange = (e) => {
@@ -120,8 +151,8 @@ const RegisterPage = () => {
 									<label>First name: </label>
 									<input
 										type="text"
-										id="name"
-										name="name"
+										id="f_name"
+										name="f_name"
 										value={form.f_name}
 										onChange={handleChange}
 									/>
@@ -186,6 +217,24 @@ const RegisterPage = () => {
 										onChange={handleChange}
 									/>
 								</div>
+								{isAuthorized && (
+									<div>
+										<label htmlFor="role">Select role</label>
+										<select
+											id="role"
+											name="role"
+											value={form.role}
+											onChange={handleChange}
+										>
+											<option value="" disabled>
+												Choose...
+											</option>
+											<option value="ADMIN">ADMIN</option>
+											<option value="CUSTOMER">CUSTOMER</option>
+										</select>
+									</div>
+								)}
+								<button type="submit">Complete registration</button>
 							</form>
 						</div>
 						<Link

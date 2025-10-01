@@ -1,7 +1,9 @@
 // File for  all API Handling
-
+const fetch = require("node-fetch");
 const express = require("express");
 const router = express.Router();
+
+const Amadeus = require("amadeus");
 
 // --- Amadeus client ---
 const amadeus = new Amadeus({
@@ -9,7 +11,21 @@ const amadeus = new Amadeus({
 	clientSecret: process.env.AMA_SECRET,
 	hostname: process.env.AMA_HOST === "production" ? "production" : "test",
 });
+
+// -----------------------------------------------
+// Health
 //-----------------------------------------------
+
+app.get("/api/health", (req, res) => {
+	res.json({
+		ok: true,
+		node: process.version,
+		amadeusHost: amadeus.client.hostname,
+		hasAmaKey: !!process.env.AMA_KEY,
+		hasAmaSecret: !!process.env.AMA_SECRET,
+		hasGoogleKey: !!process.env.API_KEY,
+	});
+});
 
 // -----------------------------------------------
 // Hotels (Google Places)
@@ -418,3 +434,5 @@ app.get("/api/flights", async (req, res) => {
 		});
 	}
 });
+
+module.exports = router;

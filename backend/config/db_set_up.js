@@ -1,5 +1,4 @@
 const express = require("express");
-const { createConnection } = require("mysql2");
 require("dotenv").config();
 const mysql = require("mysql2/promise");
 // const bodyParser = require("body-parser");
@@ -52,4 +51,4 @@ connect_query();
 // 	console.log(`Database server running on port 3306`);
 // });
 
-module.exports = createConnection;
+module.exports = connect_query;
