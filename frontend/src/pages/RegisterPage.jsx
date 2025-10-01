@@ -53,9 +53,16 @@ const RegisterPage = () => {
 		}
 
 		if (fieldErrors.length > 0) {
-			setErrors(fieldErrors.map((msg, index) => ({ id: index, msg })));
+			setErrors(fieldErrors.map((msg, i) => ({ id: i, msg })));
 		}
 		return;
+	};
+
+	const handleChange = (e) => {
+		setForm({
+			...form,
+			[e.target.name]: e.target.value,
+		});
 	};
 
 	return (
@@ -78,6 +85,109 @@ const RegisterPage = () => {
 				<div className="content">
 					<div>
 						<h1 className="main-title">Registration</h1>
+						<div>
+							{errors.length > 0 && (
+								<div style={{ marginBottom: "1rem" }}>
+									{errors.map((error) => (
+										<p>
+											<div
+												key={error.id}
+												class="alert alert-danger"
+												role="alert"
+											>
+												{error.msg}
+											</div>
+										</p>
+									))}
+								</div>
+							)}
+							{msg && (
+								<div
+									style={{
+										marginBottom: "1rem",
+									}}
+								>
+									<p>
+										<div class="alert alert-success" role="alert">
+											{msg}
+										</div>
+									</p>
+								</div>
+							)}
+
+							<form onSubmit={handleSubmit}>
+								<div>
+									<label>First name: </label>
+									<input
+										type="text"
+										id="name"
+										name="name"
+										value={form.f_name}
+										onChange={handleChange}
+									/>
+								</div>
+								<div>
+									<label>Last name: </label>
+									<input
+										type="text"
+										id="l_name"
+										name="l_name"
+										value={form.l_name}
+										onChange={handleChange}
+									/>
+								</div>
+								<div>
+									<label>Username: </label>
+									<input
+										type="text"
+										id="username"
+										name="username"
+										value={form.username}
+										onChange={handleChange}
+									/>
+								</div>
+								<div>
+									<label>Email: </label>
+									<input
+										type="email"
+										id="email"
+										name="email"
+										value={form.email}
+										onChange={handleChange}
+									/>
+								</div>
+								<div>
+									<label>Phone number: </label>
+									<input
+										type="tel"
+										id="phoneNum"
+										name="phoneNum"
+										value={form.phoneNum}
+										onChange={handleChange}
+									/>
+								</div>
+								<div>
+									<label>Password: </label>
+									<input
+										type="password"
+										id="password"
+										name="password"
+										value={form.password}
+										onChange={handleChange}
+									/>
+								</div>
+								<div>
+									<label>Confirm your password: </label>
+									<input
+										type="password"
+										id="c_password"
+										name="c_password"
+										value={form.confirm_password}
+										onChange={handleChange}
+									/>
+								</div>
+							</form>
+						</div>
 						<Link
 							className="btn-secondary"
 							to="/login"

@@ -1,8 +1,7 @@
 const express = require("express");
-
+const createConnection = require("../database");
 const { check, validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
-let User = require("../models/user");
 
 const session = require("express-session");
 router.use(
@@ -37,24 +36,31 @@ router.post("/register", async (req, res) => {
 	}
 
 	try {
-		// let existingUser = await User.findOne({ email: req.body.email });
-		// if (existingUser) {
-		// 	return res.status(400).json({ msg: "This User already exists" });
-		// }
-		const [existingUser] = await connection;
+		const connection = await createConnection();
+
+		//here we check whether the user already exists:
+		let existingUser = await connection.execute(
+			"SELECT * from users WHERE email = ?",
+			[req.body.email]
+		);
+		//if there is at least one row of results, it means a user with this email already exists:
+		if (existingUser.length > 0) {
+			return res.status(400).json({ msg: "This User already exists" });
+		}
 		const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
-		const newUser = new User({
-			firstName: req.body.firstName,
-			lastName: req.body.lastName,
-			username: req.body.email,
-			email: req.body.email,
-			password: hashedPassword,
-			phoneNum: req.body.phoneNum,
-		});
-
-		await newUser.save();
-
+		// here we run a mysql query to actually insert a new user into the db using our newly created user:
+		await connection.execute(
+			"INSERT into users (firstName, lastName, username, password, email, phoneNum) VALUES (?, ?, ?, ?, ?, ?)",
+			[
+				req.body.firstName,
+				req.body.lastName,
+				req.body.username,
+				req.body.password,
+				req.body.email,
+				req.body.phoneNum,
+			]
+		);
 		res.status(201).json({ msg: "User created successfully" });
 	} catch (err) {
 		console.error(err.message);
