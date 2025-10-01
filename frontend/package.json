@@ -21,6 +21,7 @@
     "amadeus": "^11.0.0",
     "bootstrap": "^5.3.7",
     "dotenv": "^17.2.1",
+    "jwt-decode": "^4.0.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.7.1",

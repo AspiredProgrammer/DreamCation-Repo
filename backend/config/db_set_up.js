@@ -8,33 +8,29 @@ const app = express();
 // console.log(process.env.DB_PASSWORD);
 
 //MySQL Connection Set Up:
+
+let connection;
+
 async function connect_query() {
-	let connection;
-	try {
-		connection = await mysql.createConnection({
-			host: "localhost",
-			user: "root",
-			password: process.env.DB_PASSWORD,
-			database: "dreamdb",
-		});
-		console.log("Connected to database!");
-		const [rows, fields] = await connection.execute("SELECT * FROM users");
-		console.log("Query results: ", rows);
-	} catch (err) {
-		console.error("Error: ", err);
+	if (!connection) {
+		try {
+			connection = await mysql.createConnection({
+				host: "localhost",
+				user: "root",
+				password: process.env.DB_PASSWORD,
+				database: "dreamdb",
+			});
+			console.log("Connected to database!");
+			// const [rows, fields] = await connection.execute("SELECT * FROM users");
+			// console.log("Query results: ", rows);
+		} catch (err) {
+			console.error("Error: ", err);
+		}
 	}
+	return connection;
 }
 
 connect_query();
-// module.exports = pool.promise();
-
-// db.connect((err) => {
-// 	if (err) {
-// 		console.error("Error connecting to MySQL:", err);
-// 		return;
-// 	}
-// 	console.log("Connected to MySQL database");
-// });
 
 //-----------------------------------------------
 //Fetch users from users table:
@@ -55,4 +51,4 @@ connect_query();
 // 	console.log(`Database server running on port 3306`);
 // });
 
-// module.exports = db;
+module.exports = connect_query;

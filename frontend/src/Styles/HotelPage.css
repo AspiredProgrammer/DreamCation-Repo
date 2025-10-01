@@ -389,3 +389,83 @@
     font-size: 14px;
   }
 }
+
+/* Center the page and limit width */
+.activities-page .content {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* 2-column layout: LEFT form (fixed) + RIGHT results (fluid) */
+.activities-layout {
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr); /* form smaller, results expand */
+  gap: 24px 32px;
+  align-items: start;
+}
+
+/* Results pane background (the whole right column) */
+.activities-page .results-pane {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* prevent horizontal overflow */
+}
+
+/* If you no longer show a status line, you can delete this block entirely
+.search-status { ... }
+*/
+
+/* Form card (left) */
+.search-form-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+  padding: 18px;
+}
+
+/* Results grid (scope to Activities page to avoid clashes) */
+.activities-page .results-column {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  min-width: 0;
+}
+
+/* Card + image */
+.activity-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform .2s ease;
+}
+.activity-card:hover { transform: translateY(-3px); }
+
+.activity-img {
+  width: 100%;
+  height: 220px;            /* taller image */
+  object-fit: cover;
+  display: block;
+}
+
+/* Text/meta/buttons */
+.activity-title { margin: 12px 16px 4px; color: #223; font-size: 1.05rem; }
+.activity-desc  { margin: 0 16px 8px;  color: #445; font-size: .95rem; }
+.activity-meta  { display: flex; gap: 12px; align-items: center; margin: 0 16px 12px; color: #556; font-size: .9rem; }
+.activity-price { margin-left: auto; font-weight: 600; color: #222; }
+.activity-actions{ padding: 12px 16px 16px; margin-top: auto; }
+.booking-button { display:inline-block; text-decoration:none; border:0; padding:10px 14px; border-radius:10px; background:linear-gradient(90deg,#ffe259,#ffa751); color:#222; font-weight:600; cursor:pointer; }
+.booking-button[disabled]{ background:#e5e7eb; color:#808080; cursor:not-allowed; }
+
+/* Responsive: stack form above results on narrow screens */
+@media (max-width: 1111px) {
+  .activities-layout { grid-template-columns: 1fr; }
+}
+
