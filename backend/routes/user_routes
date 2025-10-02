@@ -1,3 +1,6 @@
+require("dotenv").config();
+const bcrypt = require("bcryptjs");
+const passport = require("passport");
 const express = require("express");
 const router = express.Router();
 const connect_query = require("../config/db_set_up");
@@ -5,15 +8,15 @@ const { check, validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
 
 //potentially move this somewhere else?
-const session = require("express-session");
-router.use(
-	session({
-		secret: "secret",
-		resave: false,
-		saveUninitialized: false,
-		cookie: {},
-	})
-);
+// const session = require("express-session");
+// router.use(
+// 	session({
+// 		secret: process.env.SESSION_SECRET,
+// 		resave: false,
+// 		saveUninitialized: false,
+// 		cookie: { secure: process.env.NODE_ENV === "production" },
+// 	})
+// );
 
 router.post("/register", async (req, res) => {
 	await check("firstName", "First Name is required").notEmpty().run(req);
@@ -41,12 +44,12 @@ router.post("/register", async (req, res) => {
 		const connection = await connect_query();
 
 		//here we check whether the user already exists:
-		let existingUser = await connection.execute(
+		let [rows] = await connection.execute(
 			"SELECT * from users WHERE email = ?",
 			[req.body.email]
 		);
 		//if there is at least one row of results, it means a user with this email already exists:
-		if (existingUser.length > 0) {
+		if (rows.length > 0) {
 			return res.status(400).json({ msg: "This User already exists" });
 		}
 		const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -66,7 +69,7 @@ router.post("/register", async (req, res) => {
 		res.status(201).json({ msg: "User created successfully" });
 	} catch (err) {
 		console.error(err.message);
-		res.status(500).send("Server Error");
+		res.status(500).json({ error: "Server Error", details: err.message });
 	}
 });
 
@@ -91,9 +94,13 @@ router.post("/login", async (req, res, next) => {
 			if (err) {
 				return next(err);
 			}
-			const token = jwt.sign({ id: user._id, name: user.name }, "secret", {
-				expiresIn: "1h",
-			});
+			const token = jwt.sign(
+				{ id: user._id, name: user.name },
+				process.env.jwt_secret,
+				{
+					expiresIn: "1h",
+				}
+			);
 			return res.status(200).json({ token });
 		});
 	})(req, res, next);
