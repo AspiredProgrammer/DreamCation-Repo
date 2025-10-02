@@ -50,6 +50,7 @@ router.post("/register", async (req, res) => {
 		);
 		//if there is at least one row of results, it means a user with this email already exists:
 		if (rows.length > 0) {
+			console.log("here")
 			return res.status(400).json({ msg: "This User already exists" });
 		}
 		const hashedPassword = await bcrypt.hash(req.body.password, 10);
