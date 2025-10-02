@@ -16,22 +16,27 @@ const user_routes = require("./routes/user_routes");
 const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(cors());
-
-app.use("/user", user_routes);
-app.use("/api", api_routes);
-
+app.use(
+	cors({
+		origin: ["http://localhost:3000"],
+		methods: ["POST", "GET", "DELETE"],
+		credentials: true,
+	})
+);
 app.use(
 	session({
-		secret: process.env.SECRET,
+		secret: process.env.SESSION_SECRET,
 		resave: false,
 		saveUninitialized: false,
-		cookie: {},
+		cookie: { secure: process.env.NODE_ENV === "production" },
 	})
 );
 require("./config/passport_config")(passport);
 app.use(passport.initialize());
 app.use(passport.session());
+
+app.use("/user", user_routes);
+app.use("/api", api_routes);
 
 // --- Amadeus client ---
 // const amadeus = new Amadeus({
