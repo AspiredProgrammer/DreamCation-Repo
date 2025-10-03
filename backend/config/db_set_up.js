@@ -8,7 +8,6 @@ const app = express();
 // console.log(process.env.DB_PASSWORD);
 
 //MySQL Connection Set Up:
-
 let connection;
 
 async function connect_query() {
@@ -29,9 +28,7 @@ async function connect_query() {
 	}
 	return connection;
 }
-
 connect_query();
-
 //-----------------------------------------------
 //Fetch users from users table:
 //-----------------------------------------------
@@ -50,5 +47,4 @@ connect_query();
 // app.listen(3306, () => {
 // 	console.log(`Database server running on port 3306`);
 // });
-
 module.exports = connect_query;
