@@ -50,14 +50,14 @@ router.post("/register", async (req, res) => {
 		);
 		//if there is at least one row of results, it means a user with this email already exists:
 		if (rows.length > 0) {
-			console.log("here")
+			console.log("here");
 			return res.status(400).json({ msg: "This User already exists" });
 		}
 		const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
 		// here we run a mysql query to actually insert a new user into the db using our newly created user:
 		await connection.execute(
-			"INSERT into users (firstName, lastName, username, password, email, phoneNum) VALUES (?, ?, ?, ?, ?, ?)",
+			"INSERT into users (firstName, lastName, username, password, email, phoneNum, role) VALUES (?, ?, ?, ?, ?, ?, ?)",
 			[
 				req.body.firstName,
 				req.body.lastName,
@@ -65,6 +65,7 @@ router.post("/register", async (req, res) => {
 				hashedPassword,
 				req.body.email,
 				req.body.phoneNum,
+				req.body.role || "CUSTOMER",
 			]
 		);
 		res.status(201).json({ msg: "User created successfully" });
@@ -73,7 +74,7 @@ router.post("/register", async (req, res) => {
 		res.status(500).json({ error: "Server Error", details: err.message });
 	}
 });
-
+//----FINISH THIS UP FOR THURSDAY-----
 router.post("/login", async (req, res, next) => {
 	await check("username", "Username is required").notEmpty().run(req);
 	await check("password", "Password is required").notEmpty().run(req);
@@ -83,28 +84,36 @@ router.post("/login", async (req, res, next) => {
 	if (!errors.isEmpty()) {
 		return res.status(400).json({ errors: errors.array() });
 	}
+	try {
+		const connection = await connect_query();
 
-	passport.authenticate("local", (err, user, info) => {
-		if (err) {
-			return next(err);
-		}
-		if (!user) {
+		//here we check whether the user already exists:
+		let [rows] = await connection.execute(
+			"SELECT * from users WHERE username = ?",
+			[req.body.username]
+		);
+		//if there are no rows it means the username is incorrect:
+		if (rows.length === 0) {
 			return res.status(401).json({ msg: "Invalid credentials" });
 		}
-		req.logIn(user, async (err) => {
-			if (err) {
-				return next(err);
+
+		const isMatch = await bcrypt.compare(req.body.password, rows[0].password);
+		if (!isMatch) {
+			return res.status(401).json({ msg: "Invalid credentials" });
+		}
+
+		const token = jwt.sign(
+			{ id: rows[0].id, username: rows[0].username, scope: rows[0].role },
+			process.env.jwt_secret,
+			{
+				expiresIn: "1h",
 			}
-			const token = jwt.sign(
-				{ id: user._id, name: user.name },
-				process.env.jwt_secret,
-				{
-					expiresIn: "1h",
-				}
-			);
-			return res.status(200).json({ token });
-		});
-	})(req, res, next);
+		);
+		return res.status(200).json({ token });
+	} catch (err) {
+		console.log(err.message);
+		res.status(500).json({ error: "Server Error", details: err.message });
+	}
 });
 
 router.get("/logout", (req, res) => {

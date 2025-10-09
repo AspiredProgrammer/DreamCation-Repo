@@ -30,7 +30,11 @@ const HotelPage = () => {
 
 		try {
 			const response = await fetch(
-				`http://localhost:8000/api/hotels?city=${encodeURIComponent(city.trim())}&page=${page}&limit=10`
+				`${
+					process.env.REACT_APP_BACKEND_URL
+				}/api/hotels?city=${encodeURIComponent(
+					city.trim()
+				)}&page=${page}&limit=10`
 			);
 
 			const data = await response.json();
@@ -45,14 +49,18 @@ const HotelPage = () => {
 			}
 
 			// Handle both new pagination format and old format for backward compatibility
-			const hotels = Array.isArray(data.hotels) ? data.hotels : (Array.isArray(data) ? data : []);
+			const hotels = Array.isArray(data.hotels)
+				? data.hotels
+				: Array.isArray(data)
+				? data
+				: [];
 			const paginationInfo = data.pagination || null;
 
 			if (isFirstPage) {
 				setHotels(hotels);
 				setPagination(paginationInfo);
 			} else {
-				setHotels(prevHotels => [...prevHotels, ...hotels]);
+				setHotels((prevHotels) => [...prevHotels, ...hotels]);
 				setPagination(paginationInfo);
 			}
 
@@ -104,7 +112,11 @@ const HotelPage = () => {
 		setHasSearched(true);
 		try {
 			const response = await fetch(
-				`http://localhost:8000/api/hotels?city=${encodeURIComponent(cityName.trim())}&page=1&limit=10`
+				`${
+					process.env.REACT_APP_BACKEND_URL
+				}/api/hotels?city=${encodeURIComponent(
+					cityName.trim()
+				)}&page=1&limit=10`
 			);
 
 			const data = await response.json();
@@ -119,7 +131,11 @@ const HotelPage = () => {
 			}
 
 			// Handle both new pagination format and old format for backward compatibility
-			const hotels = Array.isArray(data.hotels) ? data.hotels : (Array.isArray(data) ? data : []);
+			const hotels = Array.isArray(data.hotels)
+				? data.hotels
+				: Array.isArray(data)
+				? data
+				: [];
 			const paginationInfo = data.pagination || null;
 
 			setHotels(hotels);
@@ -154,7 +170,9 @@ const HotelPage = () => {
 				</div>
 
 				<h1>Hotel Finder</h1>
-				<p className="subtitle">Discover the perfect place to stay in your destination</p>
+				<p className="subtitle">
+					Discover the perfect place to stay in your destination
+				</p>
 
 				<div className="search-bar">
 					<input
@@ -173,11 +191,7 @@ const HotelPage = () => {
 					</button>
 				</div>
 
-				{error && (
-					<div className="error-message">
-						{error}
-					</div>
-				)}
+				{error && <div className="error-message">{error}</div>}
 
 				{loading && (
 					<div className="loading">
@@ -191,9 +205,7 @@ const HotelPage = () => {
 						<div className="results-header">
 							<h2>Found {pagination?.totalHotels || hotels.length} hotels</h2>
 							{pagination && pagination.showing && (
-								<p className="pagination-info">
-									Showing {pagination.showing}
-								</p>
+								<p className="pagination-info">Showing {pagination.showing}</p>
 							)}
 						</div>
 						<ul className="hotel-list">
@@ -210,7 +222,7 @@ const HotelPage = () => {
 											)}
 											{hotel.price_level && (
 												<span className="hotel-price">
-													{'💰'.repeat(hotel.price_level)}
+													{"💰".repeat(hotel.price_level)}
 												</span>
 											)}
 										</div>
@@ -240,10 +252,7 @@ const HotelPage = () => {
 
 						{pagination && pagination.hasMore && !loadingMore && (
 							<div className="load-more-section">
-								<button
-									onClick={handleLoadMore}
-									className="load-more-button"
-								>
+								<button onClick={handleLoadMore} className="load-more-button">
 									Show More Hotels
 								</button>
 							</div>
@@ -253,7 +262,9 @@ const HotelPage = () => {
 
 				{!loading && !error && hotels.length === 0 && hasSearched && (
 					<div className="no-results">
-						<p>No hotels found for "{city}". Try searching for a different city.</p>
+						<p>
+							No hotels found for "{city}". Try searching for a different city.
+						</p>
 					</div>
 				)}
 			</div>
