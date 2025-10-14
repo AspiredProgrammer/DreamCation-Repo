@@ -148,9 +148,8 @@ router.get("/hotels", async (req, res, next) => {
 				limit: limitNum,
 				totalHotels: placesData.results.length,
 				hasMore: endIndex < placesData.results.length,
-				showing: `${Math.min(endIndex, placesData.results.length)} of ${
-					placesData.results.length
-				}`,
+				showing: `${Math.min(endIndex, placesData.results.length)} of ${placesData.results.length
+					}`,
 			},
 		});
 	} catch (error) {
@@ -170,6 +169,7 @@ const clampInt = (v, { min = 1, max = 1_000_000, def = 1 } = {}) => {
 	if (Number.isFinite(n)) return Math.min(max, Math.max(min, n));
 	return def;
 };
+
 
 const priceNum = (p) => (p && p.amount ? Number(p.amount) : NaN);
 
@@ -273,11 +273,10 @@ async function resolveCityGeo(
 		try {
 			const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
 				city
-			)}${
-				countryCode
+			)}${countryCode
 					? `&components=country:${encodeURIComponent(countryCode)}`
 					: ""
-			}&key=${googleApiKey}`;
+				}&key=${googleApiKey}`;
 
 			const r = await fetch(url);
 			const j = await r.json();
@@ -335,8 +334,10 @@ router.get("/activities/by-city", async (req, res) => {
 		const pageSize = clampInt(req.query.pageSize, { min: 1, max: 50, def: 4 }); // default 4/page
 
 		// --- NEW robust resolver ---
+
+		const targetLocation = pinpoint || city;
 		const resolved = await resolveCityGeo(
-			{ city, countryCode },
+			{ city: targetLocation, countryCode },
 			{ amadeus, googleApiKey: process.env.API_KEY }
 		);
 		if (!resolved || !resolved.geoCode) {
