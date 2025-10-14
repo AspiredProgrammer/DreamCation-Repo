@@ -526,28 +526,24 @@
 /* ----------------------------------------------------------  */
 .flights-layout {
 	display: flex;
-	gap: 2rem;
+	flex-direction: row;
+	justify-content: center;
 	align-items: flex-start;
-	margin-top: 1.5rem;
-}
-
-.search-column {
-	flex: 0 0 300px;
-	background: #ffffff;
-	padding: 1rem;
-	border-radius: 12px;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-
-.results-column {
+	gap: 40px;
+	margin-top: 40px;
+	width: 100%;
+	max-width: 1200px;
+  }
+  
+  /* Keep the form column narrow */
+  .search-column {
+	flex: 0 0 320px;
+  }
+  
+  /* Make the results take up remaining space */
+  .results-column {
 	flex: 1;
-	display: flex;
-	flex-direction: column;
-	gap: 12px;
-	max-height: 520px;
-	overflow-y: auto;
-	padding-right: 0.5rem;
-}
+  }
 
 .flight-card {
 	background: #fff;
@@ -630,8 +626,11 @@
 
 /* flights page content one  column */
 .flights-page .content {
-	grid-template-columns: 1fr;
-}
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 100%;
+  }
 
 .flights-page .flights-layout {
 	grid-column: 1 / -1;
@@ -753,3 +752,109 @@
 		grid-template-columns: 1fr;
 	}
 }
+  .activities-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Transportation mode tabs */
+.mode-tabs {
+	display: flex;
+	justify-content: center;
+	gap: 1rem;
+	margin: 20px auto 30px;
+  }
+  
+  .mode-tabs button {
+	background: rgba(255, 255, 255, 0.15);
+	border: 1px solid rgba(255, 255, 255, 0.3);
+	color: #fff;
+	padding: 10px 18px;
+	border-radius: 25px;
+	font-size: 15px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	backdrop-filter: blur(6px);
+  }
+  
+  .mode-tabs button:hover {
+	background: rgba(255, 255, 255, 0.3);
+	transform: translateY(-2px);
+  }
+  
+  .mode-tabs button.active {
+	background: #ffca28; /* DreamCation yellow highlight */
+	color: #333;
+	border: none;
+	box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+  }
+  
+  /* Enhanced flight results */
+.flight-card.enhanced {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	background: rgba(255, 255, 255, 0.15);
+	border-radius: 20px;
+	padding: 18px 25px;
+	margin: 15px 0;
+	color: #fff;
+	backdrop-filter: blur(8px);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+	transition: all 0.3s ease;
+  }
+  
+  .flight-card.enhanced:hover {
+	transform: scale(1.02);
+	background: rgba(255, 255, 255, 0.25);
+  }
+  
+  .flight-info {
+	display: flex;
+	align-items: center;
+	gap: 20px;
+  }
+  
+  .airline-logo img {
+	border-radius: 8px;
+	background: white;
+	padding: 3px;
+  }
+  
+  .airline-logo span {
+	font-weight: 600;
+	font-size: 1rem;
+  }
+  
+  .flight-route strong {
+	font-size: 1.1rem;
+  }
+  
+  .flight-price-section {
+	text-align: right;
+  }
+  
+  .flight-price {
+	font-size: 1.3rem;
+	font-weight: 700;
+	color: #ffeb3b;
+	margin-bottom: 6px;
+  }
+  
+  .book-button {
+	display: inline-block;
+	background: #ffca28;
+	color: #333;
+	padding: 8px 14px;
+	border-radius: 8px;
+	font-weight: 600;
+	text-decoration: none;
+	transition: all 0.3s ease;
+  }
+  
+  .book-button:hover {
+	background: #ffd54f;
+	transform: translateY(-2px);
+  }
+  
