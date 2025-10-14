@@ -1,12 +1,14 @@
 import React, { useMemo, useState } from "react";
 import NavBar from "../Components/Navbar";
 import Footer from "../Components/Footer";
+import { useItinerary } from "../contexts/ItineraryContext";
 import "../Styles/MainStyles.css";
 
 const CLIENT_PAGE_SIZE = 4;      // fixed visible page size
 const FETCH_PAGE_SIZE = 200;     // request plenty once, then paginate locally
 
 const ActivitiesPage = () => {
+  const { addToItinerary, isItemInItinerary } = useItinerary();
   // Left form inputs
   const [city, setCity] = useState("");
   const [radius, setRadius] = useState(5);                 // km
@@ -83,6 +85,33 @@ const ActivitiesPage = () => {
 
   const formatPrice = (p) =>
     p?.amount && p?.currencyCode ? `${p.currencyCode} ${p.amount}` : null;
+
+  const handleAddToItinerary = async (activity) => {
+    // Create a unique ID for this attraction
+    const itemId = `attraction-${activity.id}`;
+
+    // Prepare attraction data for itinerary
+    const attractionData = {
+      itemType: 'attraction',
+      itemId: itemId,
+      itemData: {
+        name: activity.name,
+        shortDescription: activity.shortDescription,
+        rating: activity.rating,
+        price: activity.price,
+        type: category,
+        city: city,
+        radius: radius,
+        bookingLink: activity.bookingLink,
+        pictures: activity.pictures
+      },
+      date: null, // Attractions don't have specific dates by default
+      time: null,
+      notes: ""
+    };
+
+    await addToItinerary(attractionData);
+  };
 
   return (
     <div className="homepage">
@@ -224,6 +253,10 @@ const ActivitiesPage = () => {
                     typeof act.bookingLink === "string" &&
                     act.bookingLink.startsWith("http");
 
+                  // Create unique ID for checking if item is in itinerary
+                  const itemId = `attraction-${act.id}`;
+                  const isInItinerary = isItemInItinerary('attraction', itemId);
+
                   return (
                     <div key={act.id || i} className="activity-card">
                       {img && (
@@ -265,6 +298,13 @@ const ActivitiesPage = () => {
                             Book Unavailable
                           </button>
                         )}
+                        <button
+                          onClick={() => handleAddToItinerary(act)}
+                          disabled={isInItinerary}
+                          className={`add-to-itinerary-btn ${isInItinerary ? 'in-itinerary' : ''}`}
+                        >
+                          {isInItinerary ? '✓ In Itinerary' : '📅 Add to Itinerary'}
+                        </button>
                       </div>
                     </div>
                   );

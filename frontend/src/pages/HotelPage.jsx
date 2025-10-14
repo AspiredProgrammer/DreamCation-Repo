@@ -2,9 +2,11 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import NavBar from "../Components/Navbar";
 import Footer from "../Components/Footer";
+import { useItinerary } from "../contexts/ItineraryContext";
 import "../Styles/MainStyles.css";
 
 const HotelPage = () => {
+	const { addToItinerary, isItemInItinerary } = useItinerary();
 	const [city, setCity] = useState("");
 	const [hotels, setHotels] = useState([]);
 	const [loading, setLoading] = useState(false);
@@ -151,6 +153,31 @@ const HotelPage = () => {
 		}
 	};
 
+	const handleAddToItinerary = async (hotel) => {
+		// Create a unique ID for this hotel
+		const itemId = `hotel-${hotel.place_id}`;
+
+		// Prepare hotel data for itinerary
+		const hotelData = {
+			itemType: 'hotel',
+			itemId: itemId,
+			itemData: {
+				name: hotel.name,
+				vicinity: hotel.vicinity,
+				rating: hotel.rating,
+				priceLevel: hotel.price_level,
+				placeId: hotel.place_id,
+				url: hotel.url,
+				searchCity: city
+			},
+			date: null, // Hotels don't have specific dates by default
+			time: null,
+			notes: ""
+		};
+
+		await addToItinerary(hotelData);
+	};
+
 	const handleLoadMore = () => {
 		if (pagination && pagination.hasMore) {
 			fetchHotelsByCity(pagination.currentPage + 1);
@@ -201,34 +228,46 @@ const HotelPage = () => {
 								</p>
 							)}
 
-							{hotels.map((hotel) => (
-								<div key={hotel.place_id} className="flight-card">
-									<div className="flight-title">{hotel.name}</div>
-									<p className="flight-meta">{hotel.vicinity}</p>
-									<div style={{ marginTop: "8px", display: "flex", flexWrap: "wrap", gap: "8px" }}>
-										{hotel.rating && (
-											<span className="hotel-rating">
-												⭐ {hotel.rating.toFixed(1)}
-											</span>
+							{hotels.map((hotel) => {
+								const itemId = `hotel-${hotel.place_id}`;
+								const isInItinerary = isItemInItinerary('hotel', itemId);
+
+								return (
+									<div key={hotel.place_id} className="flight-card">
+										<div className="flight-title">{hotel.name}</div>
+										<p className="flight-meta">{hotel.vicinity}</p>
+										<div style={{ marginTop: "8px", display: "flex", flexWrap: "wrap", gap: "8px" }}>
+											{hotel.rating && (
+												<span className="hotel-rating">
+													⭐ {hotel.rating.toFixed(1)}
+												</span>
+											)}
+											{hotel.price_level && (
+												<span className="hotel-price-level">
+													{"💰".repeat(hotel.price_level)}
+												</span>
+											)}
+										</div>
+										{hotel.url && (
+											<a
+												href={hotel.url}
+												target="_blank"
+												rel="noopener noreferrer"
+												className="hotel-link"
+											>
+												View on Google Maps
+											</a>
 										)}
-										{hotel.price_level && (
-											<span className="hotel-price-level">
-												{"💰".repeat(hotel.price_level)}
-											</span>
-										)}
-									</div>
-									{hotel.url && (
-										<a
-											href={hotel.url}
-											target="_blank"
-											rel="noopener noreferrer"
-											className="hotel-link"
+										<button
+											onClick={() => handleAddToItinerary(hotel)}
+											disabled={isInItinerary}
+											className={`add-to-itinerary-btn ${isInItinerary ? 'in-itinerary' : ''}`}
 										>
-											View on Google Maps
-										</a>
-									)}
-								</div>
-							))}
+											{isInItinerary ? '✓ In Itinerary' : '📅 Add to Itinerary'}
+										</button>
+									</div>
+								);
+							})}
 
 							{loadingMore && (
 								<div className="loading-more">

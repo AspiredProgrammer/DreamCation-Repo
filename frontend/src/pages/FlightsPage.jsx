@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import NavBar from "../Components/Navbar";
 import Footer from "../Components/Footer";
+import { useItinerary } from "../contexts/ItineraryContext";
 import "../Styles/MainStyles.css";
 
 const AIRLINE_NAMES = {
@@ -10,7 +11,7 @@ const AIRLINE_NAMES = {
   AC: "Air Canada",
   AA: "American Airlines",
   DL: "Delta Air Lines",
-// we can add more but these are what i saw most
+  // we can add more but these are what i saw most
 };
 
 const airlineName = (code) => AIRLINE_NAMES[code] || code;
@@ -28,6 +29,7 @@ function formatDateTime(s) {
 }
 
 export default function FlightsPage() {
+  const { addToItinerary, isItemInItinerary } = useItinerary();
   const [form, setForm] = useState({
     origin: "YYZ",
     dest: "LAX",
@@ -39,6 +41,47 @@ export default function FlightsPage() {
   const [error, setError] = useState("");
 
   const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+
+  const handleAddToItinerary = async (flightOffer) => {
+    const it = flightOffer.itineraries?.[0];
+    const segs = it?.segments || [];
+    const first = segs[0];
+    const last = segs[segs.length - 1];
+    const price = flightOffer.price?.total;
+
+    // Create a unique ID for this flight offer
+    const itemId = `${first?.departure?.iataCode}-${last?.arrival?.iataCode}-${first?.departure?.at}-${flightOffer.id || Math.random()}`;
+
+    // Prepare flight data for itinerary
+    const flightData = {
+      itemType: 'flight',
+      itemId: itemId,
+      itemData: {
+        name: `${airlineName(first?.carrierCode)} ${first?.departure?.iataCode} → ${last?.arrival?.iataCode}`,
+        airline: airlineName(first?.carrierCode),
+        route: `${first?.departure?.iataCode} → ${last?.arrival?.iataCode}`,
+        departure: first?.departure?.at,
+        arrival: last?.arrival?.at,
+        stops: Math.max(0, segs.length - 1),
+        segments: segs.map(seg => ({
+          departure: seg.departure,
+          arrival: seg.arrival,
+          carrierCode: seg.carrierCode,
+          aircraft: seg.aircraft
+        })),
+        passengers: form.adults,
+        searchDate: form.date,
+        origin: form.origin,
+        destination: form.dest,
+        price: parseFloat(price)
+      },
+      date: form.date || null,
+      time: first?.departure?.at ? new Date(first.departure.at).toTimeString().split(' ')[0] : null,
+      notes: ""
+    };
+
+    await addToItinerary(flightData);
+  };
 
   async function search(e) {
     e.preventDefault();
@@ -145,9 +188,12 @@ export default function FlightsPage() {
                 const last = segs[segs.length - 1];
                 const price = o.price?.total;
 
-                const title = `${airlineName(first?.carrierCode)} ${
-                  first?.departure?.iataCode
-                } → ${last?.arrival?.iataCode}`;
+                const title = `${airlineName(first?.carrierCode)} ${first?.departure?.iataCode
+                  } → ${last?.arrival?.iataCode}`;
+
+                // Create unique ID for checking if item is in itinerary
+                const itemId = `${first?.departure?.iataCode}-${last?.arrival?.iataCode}-${first?.departure?.at}-${o.id || Math.random()}`;
+                const isInItinerary = isItemInItinerary('flight', itemId);
 
                 return (
                   <div key={i} className="flight-card">
@@ -160,6 +206,13 @@ export default function FlightsPage() {
                       Stops: {Math.max(0, segs.length - 1)}
                     </p>
                     <p className="flight-price">${price}</p>
+                    <button
+                      onClick={() => handleAddToItinerary(o)}
+                      disabled={isInItinerary}
+                      className={`add-to-itinerary-btn ${isInItinerary ? 'in-itinerary' : ''}`}
+                    >
+                      {isInItinerary ? '✓ In Itinerary' : '📅 Add to Itinerary'}
+                    </button>
                   </div>
                 );
               })}

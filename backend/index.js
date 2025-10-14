@@ -10,6 +10,7 @@ const session = require("express-session");
 
 const api_routes = require("./routes/api_routes");
 const user_routes = require("./routes/user_routes");
+const itinerary_routes = require("./routes/itinerary_routes");
 
 // const Amadeus = require("amadeus");
 
@@ -37,6 +38,7 @@ app.use(passport.session());
 
 app.use("/user", user_routes);
 app.use("/api", api_routes);
+app.use("/api/itinerary", itinerary_routes);
 
 // --- Amadeus client ---
 // const amadeus = new Amadeus({
