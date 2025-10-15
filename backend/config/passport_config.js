@@ -23,7 +23,7 @@ module.exports = function (passport) {
 						userResults[0].password
 					);
 					if (isaMatch) {
-						return done(null, user);
+						return done(null, userResults[0]);
 					} else {
 						return done(null, false, { message: "Invalid credentials" });
 					}
