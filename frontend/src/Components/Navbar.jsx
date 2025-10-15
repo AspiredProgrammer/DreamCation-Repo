@@ -62,6 +62,8 @@ const NavBar = () => {
 					<Link to="/hotels" className="nav-link">
 						Hotels
 					</Link>
+					<Link to="/transportation" className="nav-link">
+  						Transportation
 					<Link to="/flights" className="nav-link">
 						Flights
 					</Link>
