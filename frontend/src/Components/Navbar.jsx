@@ -64,6 +64,8 @@ const NavBar = () => {
 					</Link>
 					<Link to="/transportation" className="nav-link">
   						Transportation
+					<Link to="/flights" className="nav-link">
+						Flights
 					</Link>
 					<Link to="/attractions" className="nav-link">
 						Attractions
