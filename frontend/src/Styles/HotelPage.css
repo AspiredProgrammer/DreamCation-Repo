@@ -390,31 +390,7 @@
   }
 }
 
-/* Center the page and limit width */
-.activities-page .content {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 0 16px;
-}
 
-/* 2-column layout: LEFT form (fixed) + RIGHT results (fluid) */
-.activities-layout {
-  display: grid;
-  grid-template-columns: 340px minmax(0, 1fr); /* form smaller, results expand */
-  gap: 24px 32px;
-  align-items: start;
-}
-
-/* Results pane background (the whole right column) */
-.activities-page .results-pane {
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-  display: flex;
-  flex-direction: column;
-  min-width: 0; /* prevent horizontal overflow */
-}
 
 /* If you no longer show a status line, you can delete this block entirely
 .search-status { ... }
