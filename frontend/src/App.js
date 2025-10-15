@@ -22,7 +22,6 @@ function App() {
 				<Route path="/account" element={<AccountPage />} />
 				<Route path="/login" element={<LoginPage />} />
 				<Route path="/transportation" element={<TransportationPage />} />
-				<Route path="/flights" element={<FlightsPage />} />
 				<Route path="/attractions" element={<AttractionsPage />} />
 				<Route path="/register" element={<RegisterPage />} />
 			</Routes>
