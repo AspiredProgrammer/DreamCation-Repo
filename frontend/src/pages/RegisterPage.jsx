@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { Link } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-// import Navbar from "../Components/Navbar";
+import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";
 
 const RegisterPage = () => {
@@ -154,8 +154,8 @@ const RegisterPage = () => {
 
 	return (
 		<div className="base">
-			{/* <NavBar /> */}
-			<div style={{ margin: "20px" }}>
+			<Navbar />
+			{/* <div style={{ margin: "20px" }}>
 				<Link
 					to="/"
 					style={{
@@ -167,7 +167,7 @@ const RegisterPage = () => {
 				>
 					← Back to Home
 				</Link>
-			</div>
+			</div> */}
 			<section id="home" className="main-box">
 				<div className="content">
 					<div>

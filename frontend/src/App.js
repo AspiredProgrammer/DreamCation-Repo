@@ -12,6 +12,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import TransportationPage from "./pages/TransportationPage";
 import AttractionsPage from "./pages/AttractionsPage";
+import SupportPage from "./pages/SupportPage";
 
 function App() {
 	return (
@@ -23,6 +24,7 @@ function App() {
 				<Route path="/login" element={<LoginPage />} />
 				<Route path="/transportation" element={<TransportationPage />} />
 				<Route path="/attractions" element={<AttractionsPage />} />
+				<Route path="/supportfaqs" element={<SupportPage />} />
 				<Route path="/register" element={<RegisterPage />} />
 			</Routes>
 		</Router>
