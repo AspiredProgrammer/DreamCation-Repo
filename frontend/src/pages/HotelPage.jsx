@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import NavBar from "../Components/Navbar";
 import Footer from "../Components/Footer";
-import "../Styles/HotelPage.css";
+import "../Styles/MainStyles.css";
 
 const HotelPage = () => {
 	const [city, setCity] = useState("");
@@ -30,8 +30,7 @@ const HotelPage = () => {
 
 		try {
 			const response = await fetch(
-				`${
-					process.env.REACT_APP_BACKEND_URL
+				`${process.env.REACT_APP_BACKEND_URL
 				}/api/hotels?city=${encodeURIComponent(
 					city.trim()
 				)}&page=${page}&limit=10`
@@ -52,8 +51,8 @@ const HotelPage = () => {
 			const hotels = Array.isArray(data.hotels)
 				? data.hotels
 				: Array.isArray(data)
-				? data
-				: [];
+					? data
+					: [];
 			const paginationInfo = data.pagination || null;
 
 			if (isFirstPage) {
@@ -112,8 +111,7 @@ const HotelPage = () => {
 		setHasSearched(true);
 		try {
 			const response = await fetch(
-				`${
-					process.env.REACT_APP_BACKEND_URL
+				`${process.env.REACT_APP_BACKEND_URL
 				}/api/hotels?city=${encodeURIComponent(
 					cityName.trim()
 				)}&page=1&limit=10`
@@ -134,8 +132,8 @@ const HotelPage = () => {
 			const hotels = Array.isArray(data.hotels)
 				? data.hotels
 				: Array.isArray(data)
-				? data
-				: [];
+					? data
+					: [];
 			const paginationInfo = data.pagination || null;
 
 			setHotels(hotels);
@@ -160,114 +158,100 @@ const HotelPage = () => {
 	};
 
 	return (
-		<div className="base">
+		<div className="homepage">
 			<NavBar />
-			<div className="hotel-page">
-				<div className="back-link">
-					<Link to="/" className="back-button">
-						← Back to Home
-					</Link>
-				</div>
+			<section className="main-box hotels-page">
+				<div className="content">
+					<h1 className="main-title">
+						Find Your <span className="highlight">Perfect Hotel</span>
+					</h1>
+					<p className="subtitle">
+						Discover the perfect place to stay in your destination.
+					</p>
 
-				<h1>Hotel Finder</h1>
-				<p className="subtitle">
-					Discover the perfect place to stay in your destination
-				</p>
+					<div className="flights-layout">
+						<div className="search-column">
+							<form className="search-form" onSubmit={(e) => { e.preventDefault(); fetchHotelsByCity(); }}>
+								<h3>Search Hotels</h3>
+								<div className="form-group">
+									<label htmlFor="city">Destination City</label>
+									<input
+										type="text"
+										id="city"
+										value={city}
+										onChange={(e) => setCity(e.target.value)}
+										placeholder="e.g., New York, London, Tokyo"
+										onKeyDown={handleKeyDown}
+										required
+									/>
+								</div>
 
-				<div className="search-bar">
-					<input
-						value={city}
-						onChange={(e) => setCity(e.target.value)}
-						placeholder="Enter city name (e.g., New York, London, Tokyo)"
-						onKeyDown={handleKeyDown}
-						className="search-input"
-					/>
-					<button
-						onClick={fetchHotelsByCity}
-						className="search-button"
-						disabled={loading}
-					>
-						{loading ? "Searching..." : "Search"}
-					</button>
-				</div>
+								<button type="submit" className="search-button" disabled={loading}>
+									{loading ? "Searching..." : "🔍 Search Hotels"}
+								</button>
 
-				{error && <div className="error-message">{error}</div>}
-
-				{loading && (
-					<div className="loading">
-						<div className="loading-spinner"></div>
-						<p>Searching for hotels...</p>
-					</div>
-				)}
-
-				{!loading && hotels.length > 0 && (
-					<div className="results-section">
-						<div className="results-header">
-							<h2>Found {pagination?.totalHotels || hotels.length} hotels</h2>
-							{pagination && pagination.showing && (
-								<p className="pagination-info">Showing {pagination.showing}</p>
-							)}
+								{error && <p className="error-text">{error}</p>}
+							</form>
 						</div>
-						<ul className="hotel-list">
+
+						<div className="results-column">
+							{hotels.length === 0 && !loading && hasSearched && (
+								<p className="no-results">
+									No hotels found for "{city}". Try searching for a different city.
+								</p>
+							)}
+
 							{hotels.map((hotel) => (
-								<li key={hotel.place_id} className="hotel-item">
-									<div className="hotel-info">
-										<h3 className="hotel-name">{hotel.name}</h3>
-										<p className="hotel-location">{hotel.vicinity}</p>
-										<div className="hotel-details">
-											{hotel.rating && (
-												<span className="hotel-rating">
-													⭐ {hotel.rating.toFixed(1)}
-												</span>
-											)}
-											{hotel.price_level && (
-												<span className="hotel-price">
-													{"💰".repeat(hotel.price_level)}
-												</span>
-											)}
-										</div>
-									</div>
-									<div className="hotel-actions">
-										{hotel.url && (
-											<a
-												href={hotel.url}
-												target="_blank"
-												rel="noopener noreferrer"
-												className="hotel-link"
-											>
-												View on Google Maps
-											</a>
+								<div key={hotel.place_id} className="flight-card">
+									<div className="flight-title">{hotel.name}</div>
+									<p className="flight-meta">{hotel.vicinity}</p>
+									<div style={{ marginTop: "8px", display: "flex", flexWrap: "wrap", gap: "8px" }}>
+										{hotel.rating && (
+											<span className="hotel-rating">
+												⭐ {hotel.rating.toFixed(1)}
+											</span>
+										)}
+										{hotel.price_level && (
+											<span className="hotel-price-level">
+												{"💰".repeat(hotel.price_level)}
+											</span>
 										)}
 									</div>
-								</li>
+									{hotel.url && (
+										<a
+											href={hotel.url}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="hotel-link"
+										>
+											View on Google Maps
+										</a>
+									)}
+								</div>
 							))}
-						</ul>
 
-						{loadingMore && (
-							<div className="loading-more">
-								<div className="loading-spinner"></div>
-								<p>Loading more hotels...</p>
-							</div>
-						)}
+							{loadingMore && (
+								<div className="loading-more">
+									<div className="loading-spinner"></div>
+									<p style={{ margin: "8px 0 0 0", color: "rgba(255, 255, 255, 0.8)", fontSize: "0.9rem" }}>
+										Loading more hotels...
+									</p>
+								</div>
+							)}
 
-						{pagination && pagination.hasMore && !loadingMore && (
-							<div className="load-more-section">
-								<button onClick={handleLoadMore} className="load-more-button">
+							{pagination && pagination.hasMore && !loadingMore && (
+								<button
+									onClick={handleLoadMore}
+									className="search-button"
+									style={{ marginTop: "12px" }}
+								>
 									Show More Hotels
 								</button>
-							</div>
-						)}
+							)}
+						</div>
 					</div>
-				)}
-
-				{!loading && !error && hotels.length === 0 && hasSearched && (
-					<div className="no-results">
-						<p>
-							No hotels found for "{city}". Try searching for a different city.
-						</p>
-					</div>
-				)}
-			</div>
+				</div>
+			</section>
 			<Footer />
 		</div>
 	);

@@ -63,9 +63,7 @@ const NavBar = () => {
 						Hotels
 					</Link>
 					<Link to="/transportation" className="nav-link">
-  						Transportation
-					<Link to="/flights" className="nav-link">
-						Flights
+						Transportation
 					</Link>
 					<Link to="/attractions" className="nav-link">
 						Attractions

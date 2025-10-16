@@ -533,17 +533,17 @@
 	margin-top: 40px;
 	width: 100%;
 	max-width: 1200px;
-  }
-  
-  /* Keep the form column narrow */
-  .search-column {
+}
+
+/* Keep the form column narrow */
+.search-column {
 	flex: 0 0 320px;
-  }
-  
-  /* Make the results take up remaining space */
-  .results-column {
+}
+
+/* Make the results take up remaining space */
+.results-column {
 	flex: 1;
-  }
+}
 
 .flight-card {
 	background: #fff;
@@ -552,15 +552,18 @@
 	padding: 14px 16px;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
+
 .flight-title {
 	font-size: 1.05rem;
 	font-weight: 600;
 	margin-bottom: 6px;
 }
+
 .flight-meta {
 	margin: 0;
 	color: #555;
 }
+
 .flight-price {
 	margin-top: 8px;
 	font-weight: 700;
@@ -571,6 +574,7 @@
 	color: red;
 	margin-top: 8px;
 }
+
 .no-results {
 	color: #555;
 	padding: 8px 0;
@@ -590,15 +594,18 @@
 	cursor: pointer;
 	font-weight: 600;
 }
+
 .form-group {
 	margin-bottom: 1rem;
 }
+
 .form-group label {
 	display: block;
 	font-size: 0.85rem;
 	color: #666;
 	margin-bottom: 6px;
 }
+
 .form-group input {
 	width: 100%;
 	padding: 10px 12px;
@@ -611,6 +618,7 @@
 	.flights-layout {
 		flex-direction: column;
 	}
+
 	.results-column {
 		max-height: none;
 		padding-right: 0;
@@ -624,7 +632,7 @@
 	flex-direction: column;
 	align-items: center;
 	width: 100%;
-  }
+}
 
 .flights-page .flights-layout {
 	grid-column: 1 / -1;
@@ -653,76 +661,110 @@
 .flights-page .flight-card {
 	width: 100%;
 }
+
+/* hotels page - same layout as flights */
+.hotels-page .content {
+	grid-template-columns: 1fr;
+}
+
+.hotels-page .flights-layout {
+	grid-column: 1 / -1;
+	display: grid;
+	grid-template-columns: 340px minmax(0, 1fr);
+	gap: 2rem;
+	align-items: start;
+}
+
+.hotels-page .results-column {
+	min-width: 0;
+	max-height: 60vh;
+	overflow-y: auto;
+	padding-right: 0.5rem;
+}
+
+.hotels-page .flight-card {
+	width: 100%;
+}
+
 /* Activities Page Layout */
 /* --- Activities: neutralize the global .content grid --- */
 .activities-page .content {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 0 16px;
+	max-width: 1100px;
+	margin: 0 auto;
+	padding: 0 16px;
 
-  /* override the global .content grid */
-  display: block;                 /* was grid globally */
-  grid-template-columns: 1fr;     /* harmless if display changes later */
-  gap: 0;                         /* reset */
+	/* override the global .content grid */
+	display: block;
+	/* was grid globally */
+	grid-template-columns: 1fr;
+	/* harmless if display changes later */
+	gap: 0;
+	/* reset */
 }
 
 /* --- Activities layout grid (form + results + status full width) --- */
 /* Two columns: form (fixed) + results (flex) */
 .activities-layout {
-  display: grid;
-  grid-template-columns: 380px 1fr;
-  gap: 24px 32px;
-  align-items: start;
+	display: grid;
+	grid-template-columns: 380px 1fr;
+	gap: 24px 32px;
+	align-items: start;
 }
 
 /* Results pane stacks the status and the grid */
 .activities-page .results-pane {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;                 /* prevents overflow on small screens */
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	/* prevents overflow on small screens */
 }
 
 /* Status lives inside the results pane (NOT full width) */
 .activities-page .search-status {
-  grid-column: auto;            /* cancel any previous full-span */
-  margin: 0 0 12px 0;
-  padding: 10px 14px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff;
-  font-weight: 600;
-  backdrop-filter: blur(3px);
+	grid-column: auto;
+	/* cancel any previous full-span */
+	margin: 0 0 12px 0;
+	padding: 10px 14px;
+	border-radius: 10px;
+	background: rgba(255, 255, 255, 0.15);
+	color: #fff;
+	font-weight: 600;
+	backdrop-filter: blur(3px);
 }
 
 /* Results grid ONLY for Activities page (avoid Flights conflicts) */
 .activities-page .results-column {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 20px;
-  min-width: 0;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+	gap: 20px;
+	min-width: 0;
 }
 
 /* Card + image (unchanged, but shown for clarity) */
 .activity-card {
-  background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+	background: #fff;
+	border-radius: 14px;
+	box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
 }
+
 .activity-img {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  display: block;
+	width: 100%;
+	height: 200px;
+	object-fit: cover;
+	display: block;
 }
 
 /* Responsive: stack on narrow screens */
 @media (max-width: 992px) {
-  .activities-layout {
-    grid-template-columns: 1fr;
-  }
+	.activities-layout {
+		grid-template-columns: 1fr;
+	}
+}
+.activities-layout {
+	grid-template-columns: 1fr;
 }
 
 /* Transportation mode tabs */
@@ -731,9 +773,9 @@
 	justify-content: center;
 	gap: 1rem;
 	margin: 20px auto 30px;
-  }
-  
-  .mode-tabs button {
+}
+
+.mode-tabs button {
 	background: rgba(255, 255, 255, 0.15);
 	border: 1px solid rgba(255, 255, 255, 0.3);
 	color: #fff;
@@ -744,21 +786,21 @@
 	cursor: pointer;
 	transition: all 0.3s ease;
 	backdrop-filter: blur(6px);
-  }
-  
-  .mode-tabs button:hover {
+}
+
+.mode-tabs button:hover {
 	background: rgba(255, 255, 255, 0.3);
 	transform: translateY(-2px);
-  }
-  
-  .mode-tabs button.active {
+}
+
+.mode-tabs button.active {
 	background: #ffca28; /* DreamCation yellow highlight */
 	color: #333;
 	border: none;
 	box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
-  }
-  
-  /* Enhanced flight results */
+}
+
+/* Enhanced flight results */
 .flight-card.enhanced {
 	display: flex;
 	justify-content: space-between;
@@ -771,46 +813,46 @@
 	backdrop-filter: blur(8px);
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 	transition: all 0.3s ease;
-  }
-  
-  .flight-card.enhanced:hover {
+}
+
+.flight-card.enhanced:hover {
 	transform: scale(1.02);
 	background: rgba(255, 255, 255, 0.25);
-  }
-  
-  .flight-info {
+}
+
+.flight-info {
 	display: flex;
 	align-items: center;
 	gap: 20px;
-  }
-  
-  .airline-logo img {
+}
+
+.airline-logo img {
 	border-radius: 8px;
 	background: white;
 	padding: 3px;
-  }
-  
-  .airline-logo span {
+}
+
+.airline-logo span {
 	font-weight: 600;
 	font-size: 1rem;
-  }
-  
-  .flight-route strong {
+}
+
+.flight-route strong {
 	font-size: 1.1rem;
-  }
-  
-  .flight-price-section {
+}
+
+.flight-price-section {
 	text-align: right;
-  }
-  
-  .flight-price {
+}
+
+.flight-price {
 	font-size: 1.3rem;
 	font-weight: 700;
 	color: #ffeb3b;
 	margin-bottom: 6px;
-  }
-  
-  .book-button {
+}
+
+.book-button {
 	display: inline-block;
 	background: #ffca28;
 	color: #333;
@@ -819,9 +861,9 @@
 	font-weight: 600;
 	text-decoration: none;
 	transition: all 0.3s ease;
-  }
-  
-  .book-button:hover {
+}
+
+.book-button:hover {
 	background: #ffd54f;
 	transform: translateY(-2px);
   }
@@ -899,3 +941,4 @@
 	margin-bottom: 1rem;
   }
   
+}

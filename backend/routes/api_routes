@@ -3,6 +3,7 @@ const fetch = require("node-fetch");
 require("dotenv").config();
 const express = require("express");
 const router = express.Router();
+console.log("✅ ENV loaded. PredictHQ token present?", !!process.env.PREDICTHQ_TOKEN);
 
 const Amadeus = require("amadeus");
 
@@ -36,6 +37,8 @@ router.get("/health", (req, res) => {
 		hasAmaKey: !!process.env.AMA_KEY,
 		hasAmaSecret: !!process.env.AMA_SECRET,
 		hasGoogleKey: !!process.env.API_KEY,
+		hasPredictHQ: !!process.env.PREDICTHQ_TOKEN,
+
 	});
 });
 
@@ -217,67 +220,26 @@ const CATEGORY_KEYWORDS = {
 		"lookout",
 	],
 };
-
-// ---------- Add this helper near the top of your file (after CATEGORY_KEYWORDS etc.) ----------
-async function resolveCityGeo(
-	{ city, countryCode },
-	{ amadeus, googleApiKey }
-) {
-	// 1) Amadeus Cities API (best for city coordinates)
+console.log("PredictHQ loaded:", !!process.env.PREDICTHQ_TOKEN);
+async function resolveCityGeo({ city, countryCode }, { amadeus, googleApiKey }) {
+	// Try Amadeus first
 	try {
-		// If input looks like a 3-letter IATA code, try iataCode first
-		if (/^[A-Za-z]{3}$/.test(city)) {
-			const iata = city.toUpperCase();
-			const byIata = await amadeus.referenceData.locations.cities.get({
-				iataCode: iata,
-				"page[limit]": 1,
-			});
-			const byIataJson = JSON.parse(byIata.body);
-			const c = (byIataJson.data || [])[0];
-			if (c?.geoCode) return { name: c.name, geoCode: c.geoCode };
-		}
-
-		// Otherwise search by keyword (optionally with countryCode)
-		const citiesResp = await amadeus.referenceData.locations.cities.get({
+		const resp = await amadeus.referenceData.locations.cities.get({
 			keyword: city,
 			...(countryCode ? { countryCode } : {}),
-			"page[limit]": 5,
+			"page[limit]": 3,
 		});
-		const citiesJson = JSON.parse(citiesResp.body);
-		const match = (citiesJson.data || [])[0];
+		const json = JSON.parse(resp.body);
+		const match = (json.data || [])[0];
 		if (match?.geoCode) return { name: match.name, geoCode: match.geoCode };
-	} catch (e) {
-		// swallow and try next strategy
-	}
+	} catch (_) { }
 
-	// 2) Amadeus Locations (CITY and AIRPORT), grab the first with geoCode
-	try {
-		const locResp = await amadeus.referenceData.locations.get({
-			subType: "CITY,AIRPORT",
-			keyword: city,
-			"page[limit]": 10,
-		});
-		const locJson = JSON.parse(locResp.body);
-		const withGeo = (locJson.data || []).find((x) => x.geoCode);
-		if (withGeo)
-			return {
-				name: withGeo.name || withGeo.iataCode || city,
-				geoCode: withGeo.geoCode,
-			};
-	} catch (e) {
-		// swallow and try next strategy
-	}
-
-	// 3) Optional: Google Geocoding fallback (only if API key is present)
+	// Fallback: Google Geocoding
 	if (googleApiKey) {
 		try {
 			const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
 				city
-			)}${countryCode
-					? `&components=country:${encodeURIComponent(countryCode)}`
-					: ""
-				}&key=${googleApiKey}`;
-
+			)}&key=${googleApiKey}`;
 			const r = await fetch(url);
 			const j = await r.json();
 			const first = (j.results || [])[0];
@@ -290,121 +252,151 @@ async function resolveCityGeo(
 					},
 				};
 			}
-		} catch (e) {
-			// ignore
-		}
+		} catch (_) { }
 	}
-
-	// If all failed:
 	return null;
 }
 
-function matchesCategory(activity, cat) {
-	if (!cat) return true;
-	const key = String(cat).toUpperCase();
-	const needles = CATEGORY_KEYWORDS[key];
-	if (!needles) return true;
-
-	const hayA = (activity.categories || []).join(" ").toLowerCase();
-	const hayB = (activity.type || "").toString().toLowerCase();
-	const hayC = (activity.name || "").toLowerCase();
-	const hayD = (activity.shortDescription || "").toLowerCase();
-	const hay = `${hayA} ${hayB} ${hayC} ${hayD}`;
-	return needles.some((w) => hay.includes(w));
-}
-
-// GET /api/activities/by-city
-// city=Paris&radius=5&q=eiffel&minPrice=10&maxPrice=100&category=RESTAURANT&page=1&pageSize=4
 router.get("/activities/by-city", async (req, res) => {
 	try {
 		const city = (req.query.city || "").trim();
-		if (!city) return res.status(400).json({ error: "city is required" });
+		const category = (req.query.category || "").trim();
+		const q = (req.query.q || "").trim();
+		const onlyFree = req.query.onlyFree === "true";
+		const eventDate = req.query.eventDate || null;
+		const pageSize = Number(req.query.pageSize) || 50;
 
-		const countryCode = (req.query.countryCode || "").trim().toUpperCase(); // optional hint, e.g., CA
-		const radius = clampInt(req.query.radius, { min: 1, max: 50, def: 5 }); // km
-		const q = (req.query.q || "").trim().toLowerCase();
-		const minPrice =
-			req.query.minPrice !== undefined ? Number(req.query.minPrice) : null;
-		const maxPrice =
-			req.query.maxPrice !== undefined ? Number(req.query.maxPrice) : null;
-		const category = (req.query.category || "").trim().toUpperCase();
+		if (!city) return res.status(400).json({ error: "Missing city" });
+		if (!process.env.PREDICTHQ_TOKEN)
+			return res.status(500).json({ error: "Missing PredictHQ token" });
 
-		// Pagination
-		const page = clampInt(req.query.page, { min: 1, max: 10_000, def: 1 });
-		const pageSize = clampInt(req.query.pageSize, { min: 1, max: 50, def: 4 }); // default 4/page
+		const geo = await resolveCityGeo({ city }, { amadeus, googleApiKey: process.env.API_KEY });
+		if (!geo) return res.status(404).json({ error: `City "${city}" not found via Geocoding` });
 
-		// --- NEW robust resolver ---
+		const { latitude, longitude } = geo.geoCode;
 
-		const targetLocation = pinpoint || city;
-		const resolved = await resolveCityGeo(
-			{ city: targetLocation, countryCode },
-			{ amadeus, googleApiKey: process.env.API_KEY }
-		);
-		if (!resolved || !resolved.geoCode) {
-			return res
-				.status(404)
-				.json({ error: `No coordinates found for "${city}"` });
+		const baseUrl = new URL("https://api.predicthq.com/v1/events/");
+		baseUrl.searchParams.set("within", `10km@${latitude},${longitude}`);
+		baseUrl.searchParams.set("limit", String(pageSize));
+		baseUrl.searchParams.set("sort", "start");
+
+		if (category) baseUrl.searchParams.set("category", category);
+		if (q) baseUrl.searchParams.set("q", q);
+		if (onlyFree) baseUrl.searchParams.set("price", "free");
+		if (eventDate) {
+			baseUrl.searchParams.set("start.gte", `${eventDate}T00:00:00Z`);
+			baseUrl.searchParams.set("start.lte", `${eventDate}T23:59:59Z`);
 		}
-		const { latitude, longitude } = resolved.geoCode;
 
-		// 2) Fetch activities near coords
-		const actResp = await amadeus.shopping.activities.get({
-			latitude,
-			longitude,
-			radius,
+		const res2 = await fetch(baseUrl.href, {
+			headers: { Authorization: `Bearer ${process.env.PREDICTHQ_TOKEN}` },
 		});
-		const actJson = JSON.parse(actResp.body);
-		let list = Array.isArray(actJson.data) ? actJson.data : [];
 
-		// 3) Filters (text, price, category)
-		if (q) {
-			list = list.filter(
-				(a) =>
-					(a.name && a.name.toLowerCase().includes(q)) ||
-					(a.shortDescription && a.shortDescription.toLowerCase().includes(q))
-			);
-		}
-		if (minPrice != null && !Number.isNaN(minPrice)) {
-			list = list.filter(
-				(a) => !Number.isNaN(priceNum(a.price)) && priceNum(a.price) >= minPrice
-			);
-		}
-		if (maxPrice != null && !Number.isNaN(maxPrice)) {
-			list = list.filter(
-				(a) => !Number.isNaN(priceNum(a.price)) && priceNum(a.price) <= maxPrice
-			);
-		}
-		if (category) {
-			list = list.filter((a) => matchesCategory(a, category));
-		}
+		if (!res2.ok) throw new Error(await res2.text());
+		const data = await res2.json();
 
-		// 4) Pagination
-		const total = list.length;
-		const totalPages = Math.max(1, Math.ceil(total / pageSize));
-		const currentPage = Math.min(page, totalPages);
-		const start = (currentPage - 1) * pageSize;
-		const end = start + pageSize;
-		const pageItems = list.slice(start, end);
+		const formatted = (data.results || []).map((e) => {
+			// Try to extract a usable website URL
+			let url =
+				e.url ||
+				(e.entities?.[0]?.url ?? null) ||
+				`https://www.google.com/search?q=${encodeURIComponent(e.title + " " + (e.location?.[0] || city))}`;
 
-		return res.json({
-			data: pageItems,
+			return {
+				id: e.id,
+				name: e.title,
+				location: e.entities?.[0]?.name || city,
+				startTime: e.start,
+				endTime: e.end,
+				category: e.category,
+				url,
+				image: e.images?.[0]?.url || null,
+				shortDescription: e.description || "No description available.",
+			};
+		});
+
+		res.json({
+			data: formatted,
 			meta: {
-				city: resolved.name,
-				geoCode: resolved.geoCode,
-				total,
-				page: currentPage,
-				pageSize,
-				totalPages,
-				hasPrev: currentPage > 1,
-				hasNext: currentPage < totalPages,
+				total: data.count,
+				city,
+				geo,
+				source: "PredictHQ",
 			},
 		});
 	} catch (err) {
-		const details = err?.response?.result || err.message;
-		console.error("[/api/activities/by-city] ERROR:", details);
-		return res
-			.status(500)
-			.json({ error: "Activities by-city failed", details });
+		console.error("[/api/activities/by-city] ERROR:", err);
+		res.status(500).json({ error: "PredictHQ API failed", details: err.message });
+	}
+});
+
+// -----------------------------------------------
+// 🟦 Google Places — /api/places/by-city
+// -----------------------------------------------
+router.get("/places/by-city", async (req, res) => {
+	try {
+		const { city, type = "restaurant", page = 1, limit = 20 } = req.query;
+
+		if (!city) return res.status(400).json({ error: "City is required" });
+		if (!process.env.API_KEY) {
+			return res.status(500).json({ error: "Missing Google API Key" });
+		}
+
+		// Geocode city
+		const geoUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+			city
+		)}&key=${process.env.API_KEY}`;
+		const geoRes = await fetch(geoUrl);
+		const geoData = await geoRes.json();
+
+		if (geoData.status !== "OK" || !geoData.results.length) {
+			return res.status(404).json({ error: `City "${city}" not found` });
+		}
+
+		const { lat, lng } = geoData.results[0].geometry.location;
+
+		// Nearby search
+		const placesUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=5000&type=${type}&key=${process.env.API_KEY}`;
+		const placesRes = await fetch(placesUrl);
+		const placesData = await placesRes.json();
+
+		if (placesData.status !== "OK") {
+			return res.status(500).json({
+				error: "Google Places API failed",
+				details: placesData.error_message || placesData.status,
+			});
+		}
+
+		const formatted = await Promise.all(
+			(placesData.results || []).map(async (p) => {
+				let website = null;
+
+				try {
+					const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${p.place_id}&fields=website,url&key=${process.env.API_KEY}`;
+					const detailsRes = await fetch(detailsUrl);
+					const detailsData = await detailsRes.json();
+					website = detailsData.result?.website || detailsData.result?.url || null;
+				} catch (_) { }
+
+				return {
+					id: p.place_id,
+					name: p.name,
+					address: p.vicinity || city,
+					rating: p.rating || null,
+					photo: p.photos
+						? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${p.photos[0].photo_reference}&key=${process.env.API_KEY}`
+						: null,
+					officialUrl: website, // ✅ Official website (if available)
+					mapsUrl: `https://www.google.com/maps/place/?q=place_id:${p.place_id}`, // ✅ Always available fallback
+					shortDescription: p.types ? p.types.join(", ") : "No details available",
+				};
+			})
+		);
+
+		res.json({ data: formatted });
+	} catch (err) {
+		console.error("Error in /api/places/by-city:", err);
+		res.status(500).json({ error: "Google Places API failed", details: err.message });
 	}
 });
 
