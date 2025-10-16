@@ -449,3 +449,23 @@ router.get("/flights", async (req, res) => {
 });
 
 module.exports = router;
+
+// Car Rental // 
+router.get("/cars", async (req, res) => {
+	const { origin, dest, pickupDate, returnDate, driversAge } = req.query;
+  
+	try {
+		const response = await amadeus.shopping.vehicleOffers.get({
+			pickupLocationCode: origin,
+			dropOffLocationCode: dest || origin,
+			pickupDate,
+			returnDate,
+			driversAge: driversAge || 25,
+		  });
+		  
+	  res.json(response.data);
+	} catch (err) {
+	  console.error("Car rental error →", err);
+	  res.status(500).json({ error: "Car search failed" });
+	}
+  });
