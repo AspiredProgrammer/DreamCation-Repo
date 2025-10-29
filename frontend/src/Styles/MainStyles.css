@@ -656,7 +656,7 @@
 	padding-bottom: 50px;
 	background-color: rgba(0, 0, 0, 0.6); /* fallback overlay */
 	background-blend-mode: overlay; /* keeps text readable */
-  }
+}
 
 .flights-page .flight-card {
 	width: 100%;
@@ -866,38 +866,38 @@
 .book-button:hover {
 	background: #ffd54f;
 	transform: translateY(-2px);
-  }
-  
-  .transition-bg {
+}
+
+.transition-bg {
 	background-size: cover;
 	background-position: center;
 	background-repeat: no-repeat;
 	transition: background-image 0.6s ease-in-out, opacity 0.6s ease-in-out;
 	animation: fadeIn 0.8s ease;
-  }
-  
-  @keyframes fadeIn {
+}
+
+@keyframes fadeIn {
 	0% {
-	  opacity: 0;
-	  transform: scale(1.02);
+		opacity: 0;
+		transform: scale(1.02);
 	}
 	100% {
-	  opacity: 1;
-	  transform: scale(1);
+		opacity: 1;
+		transform: scale(1);
 	}
-  }
+}
 
-  .trip-type-toggle {
+.trip-type-toggle {
 	margin-bottom: 1.2rem;
-  }
-  
-  .trip-type-buttons {
+}
+
+.trip-type-buttons {
 	display: flex;
 	gap: 10px;
 	margin-top: 6px;
-  }
-  
-  .trip-type-buttons button {
+}
+
+.trip-type-buttons button {
 	flex: 1;
 	padding: 10px 14px;
 	border-radius: 8px;
@@ -908,37 +908,35 @@
 	cursor: pointer;
 	transition: all 0.25s ease;
 	backdrop-filter: blur(6px);
-  }
-  
-  .trip-type-buttons button:hover {
+}
+
+.trip-type-buttons button:hover {
 	background-color: rgba(255, 255, 255, 0.25);
 	transform: scale(1.03);
-  }
-  
-  /* ✅ active button stands out clearly */
-  .trip-type-buttons button.active {
+}
+
+/* ✅ active button stands out clearly */
+.trip-type-buttons button.active {
 	background: linear-gradient(
 		180deg,
 		rgba(255, 232, 92, 1) 0%,
 		rgba(255, 208, 0, 1) 100%
-	);	color: #1a1a1a;
+	);
+	color: #1a1a1a;
 	font-weight: 600;
 	transform: scale(1.05);
-  }
-  
-  
-  .car-rentals {
+}
+
+.car-rentals {
 	display: flex;
 	gap: 2rem;
 	margin-top: 1.5rem;
-  }
-  
-  .car-card {
+}
+
+.car-card {
 	background: #fff;
 	padding: 1rem;
 	border-radius: 12px;
-	box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 	margin-bottom: 1rem;
-  }
-  
 }
