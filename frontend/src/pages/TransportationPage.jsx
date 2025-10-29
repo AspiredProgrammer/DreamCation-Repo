@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import NavBar from "../Components/Navbar";
 import Footer from "../Components/Footer";
 import "../Styles/MainStyles.css";
+import { useItinerary } from "../contexts/ItineraryContext";
 import planeBG from "../assets/planebg.jpg";
 import carBG from "../assets/carbg.jpeg";
 import busBG from "../assets/busbg.jpg";
@@ -83,6 +84,7 @@ function formatDateTime(s) {
 }
 
 export default function TransportationPage() {
+  const { addToItinerary } = useItinerary();
   const [mode, setMode] = useState("flights");
   const [form, setForm] = useState({
     origin: "YYZ",
@@ -321,6 +323,24 @@ export default function TransportationPage() {
                   >
                     Book Now →
                   </a>
+                  <button
+                    className="btn btn-primary"
+                    style={{ marginLeft: 8, marginTop: 8 }}
+                    onClick={() => addToItinerary({
+                      itemType: 'flight',
+                      itemId: `${first?.departure?.iataCode}-${last?.arrival?.iataCode}-${i}`,
+                      itemData: {
+                        route: `${first?.departure?.iataCode} → ${last?.arrival?.iataCode}`,
+                        airline: airlineName(airlineCode),
+                        departure: first?.departure?.at,
+                        arrival: last?.arrival?.at,
+                        stops: Math.max(0, segs.length - 1),
+                        price,
+                      },
+                    })}
+                  >
+                    Save to Itinerary
+                  </button>
                 </div>
               </div>
             );

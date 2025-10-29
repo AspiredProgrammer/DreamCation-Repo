@@ -3,8 +3,10 @@ import { Link } from "react-router-dom";
 import NavBar from "../Components/Navbar";
 import Footer from "../Components/Footer";
 import "../Styles/MainStyles.css";
+import { useItinerary } from "../contexts/ItineraryContext";
 
 const HotelPage = () => {
+	const { addToItinerary } = useItinerary();
 	const [city, setCity] = useState("");
 	const [hotels, setHotels] = useState([]);
 	const [loading, setLoading] = useState(false);
@@ -201,8 +203,8 @@ const HotelPage = () => {
 								</p>
 							)}
 
-							{hotels.map((hotel) => (
-								<div key={hotel.place_id} className="flight-card">
+						{hotels.map((hotel) => (
+							<div key={hotel.place_id} className="flight-card">
 									<div className="flight-title">{hotel.name}</div>
 									<p className="flight-meta">{hotel.vicinity}</p>
 									<div style={{ marginTop: "8px", display: "flex", flexWrap: "wrap", gap: "8px" }}>
@@ -217,7 +219,7 @@ const HotelPage = () => {
 											</span>
 										)}
 									</div>
-									{hotel.url && (
+								{hotel.url && (
 										<a
 											href={hotel.url}
 											target="_blank"
@@ -227,6 +229,22 @@ const HotelPage = () => {
 											View on Google Maps
 										</a>
 									)}
+								<button
+									onClick={() => addToItinerary({
+										itemType: 'hotel',
+										itemId: hotel.place_id,
+										itemData: {
+											name: hotel.name,
+											vicinity: hotel.vicinity,
+											rating: hotel.rating,
+											placeId: hotel.place_id,
+											url: hotel.url,
+										},
+									})}
+									className="btn btn-primary"
+								>
+									Save to Itinerary
+								</button>
 								</div>
 							))}
 
