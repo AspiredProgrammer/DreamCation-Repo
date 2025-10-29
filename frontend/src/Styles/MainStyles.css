@@ -673,7 +673,7 @@
 }
 
 /* hotels page - same layout as flights */
-.hotels-page {
+.homepage .hotels-page {
 	background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)),
 		url('../assets/hotelbg.jpg');
 	background-size: cover;
@@ -704,6 +704,9 @@
 .hotels-page .flight-card {
 	width: 100%;
 }
+
+/* Card to ensure readability over background image */
+
 
 /* Activities Page Layout */
 /* --- Activities: neutralize the global .content grid --- */

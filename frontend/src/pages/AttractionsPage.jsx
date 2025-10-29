@@ -2,11 +2,13 @@ import React, { useMemo, useState } from "react";
 import NavBar from "../Components/Navbar";
 import Footer from "../Components/Footer";
 import "../Styles/Activities.css";
+import { useItinerary } from "../contexts/ItineraryContext";
 
 const CLIENT_PAGE_SIZE = 4;
 const FETCH_PAGE_SIZE = 50;
 
 const ActivitiesPage = () => {
+  const { addToItinerary } = useItinerary();
   const [city, setCity] = useState("");
   const [category, setCategory] = useState("");
   const [query, setQuery] = useState("");
@@ -307,6 +309,23 @@ const ActivitiesPage = () => {
                       onClick={() => setOpenIndex(i)}
                     >
                       More Info
+                    </button>
+                    <button
+                      className="btn btn-primary"
+                      style={{ marginLeft: 8 }}
+                      onClick={() => addToItinerary({
+                        itemType: 'attraction',
+                        itemId: item.id || `${item.name}-${i}`,
+                        itemData: {
+                          name: item.name,
+                          type: item.type,
+                          shortDescription: item.shortDescription,
+                          image: item.image || item.photo,
+                          url: item.url || item.mapsUrl || item.officialUrl,
+                        },
+                      })}
+                    >
+                      Save
                     </button>
                   </div>
                 </div>

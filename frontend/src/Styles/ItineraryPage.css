@@ -1,0 +1,58 @@
+.itinerary-page .page-intro-card {
+	background: rgba(255, 255, 255, 0.95);
+	border-radius: 16px;
+	padding: 20px;
+	box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
+	margin-bottom: 16px;
+}
+
+.itinerary-page .page-intro-card .main-title {
+	color: #2c3e50;
+	text-shadow: none;
+}
+
+.itinerary-page .page-intro-card .subtitle {
+	color: #2c3e50 !important;
+}
+
+/* Itinerary empty state */
+.itinerary-page .itinerary-empty {
+	display: flex;
+	justify-content: center;
+	width: 100%;
+	margin-top: 12px;
+}
+
+.itinerary-page .empty-card {
+	background: rgba(255, 255, 255, 0.96);
+	border-radius: 16px;
+	padding: 28px 24px;
+	box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
+	text-align: center;
+	max-width: 640px;
+	width: 100%;
+}
+
+.itinerary-page .empty-emoji {
+	font-size: 40px;
+	margin-bottom: 10px;
+}
+
+.itinerary-page .empty-title {
+	margin: 4px 0 6px 0;
+	color: #2c3e50;
+}
+
+.itinerary-page .empty-subtitle {
+	margin: 0 0 16px 0;
+	color: #465;
+}
+
+.itinerary-page .empty-actions {
+	display: flex;
+	gap: 10px;
+	justify-content: center;
+	flex-wrap: wrap;
+}
+
+
