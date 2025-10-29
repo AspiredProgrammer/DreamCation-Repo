@@ -2,7 +2,6 @@ import React from "react";
 import NavBar from "../Components/Navbar";
 import Footer from "../Components/Footer";
 import { useItinerary } from "../contexts/ItineraryContext";
-import "../Styles/MainStyles.css";
 import "../Styles/ItineraryPage.css";
 
 function formatDateTime(dateString, timeString) {
