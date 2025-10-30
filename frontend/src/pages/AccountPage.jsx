@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import NavBar from "../Components/Navbar";
 import Footer from "../Components/Footer";
+import "../Styles/Account.css";
 
 const AccountPage = () => {
 	const [username, setUsername] = useState("");
@@ -23,11 +24,14 @@ const AccountPage = () => {
 		const token = localStorage.getItem("token");
 		if (token) {
 			const decoded = jwtDecode(token);
-			setUsername(decoded.name);
+
+			setUsername(decoded.username);
+		} else {
+			window.location.href = "/404";
 		}
 	}, []);
 	return (
-		<div className="homepage">
+		<div className="homepage mainbox">
 			<NavBar />
 			{/* <div style={{ margin: "20px" }}>
 				<Link
@@ -42,18 +46,24 @@ const AccountPage = () => {
 					← Back to Home
 				</Link>
 			</div> */}
-			<section id="home" className="main-box">
+			<section className="main-box">
 				<div className="content">
 					<div>
 						<h1 className="main-title">My Account</h1>
-
-						<p>Welcome to your account page, {username}</p>
+						{isLoggedIn && (
+							<p className="subtitle">
+								Welcome to your account page, {username}
+							</p>
+						)}
 					</div>
 
 					{isAuthorized && (
 						<>
-							<div style={{ marginBottom: "10px" }}>
-								As an administrator, you may register any new users, right here:
+							<div style={{ backgroundColor: "red" }}>
+								<p>
+									As an administrator, you may register any new users, right
+									here:
+								</p>
 								<Link to="/register">Register</Link>
 							</div>
 						</>

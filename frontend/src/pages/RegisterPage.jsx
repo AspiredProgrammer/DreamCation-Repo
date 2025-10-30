@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";
@@ -8,7 +8,7 @@ import Footer from "../Components/Footer";
 const RegisterPage = () => {
 	const [errors, setErrors] = useState([]);
 	const [message, setMessage] = useState("");
-
+	const navigate = useNavigate;
 	const token = localStorage.getItem("token");
 	let decodedToken = null;
 	let isAuthorized = false;
@@ -125,6 +125,8 @@ const RegisterPage = () => {
 				// setMessage("Registration successful!");
 
 				toast.success("Registration successful!", { position: "top-right" });
+
+				navigate("/");
 
 				setErrors([]);
 				setFormData({
@@ -249,23 +251,23 @@ const RegisterPage = () => {
 										onChange={handleChange}
 									/>
 								</div>
-								{isAuthorized && (
-									<div className="form-group">
-										<label htmlFor="role">Select role</label>
-										<select
-											id="role"
-											name="role"
-											value={formData.role}
-											onChange={handleChange}
-										>
-											<option value="" disabled>
-												Choose...
-											</option>
-											<option value="ADMIN">ADMIN</option>
-											<option value="CUSTOMER">CUSTOMER</option>
-										</select>
-									</div>
-								)}
+								{/* {isAuthorized && ( */}
+								<div className="form-group">
+									<label htmlFor="role">Select role</label>
+									<select
+										id="role"
+										name="role"
+										value={formData.role}
+										onChange={handleChange}
+									>
+										<option value="" disabled>
+											Choose...
+										</option>
+										<option value="ADMIN">ADMIN</option>
+										<option value="CUSTOMER">CUSTOMER</option>
+									</select>
+								</div>
+								{/* )} */}
 								<button type="submit" className="search-button">
 									Complete registration
 								</button>

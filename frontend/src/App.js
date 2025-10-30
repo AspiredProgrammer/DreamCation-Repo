@@ -15,25 +15,27 @@ import TransportationPage from "./pages/TransportationPage";
 import AttractionsPage from "./pages/AttractionsPage";
 import SupportPage from "./pages/SupportPage";
 import ItineraryPage from "./pages/ItineraryPage";
+import ErrorPage from "./pages/404_page";
 
 function App() {
-    return (
-        <ItineraryProvider>
-            <Router>
-                <Routes>
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="/hotels" element={<HotelPage />} />
-                    <Route path="/account" element={<AccountPage />} />
-                    <Route path="/login" element={<LoginPage />} />
-                    <Route path="/transportation" element={<TransportationPage />} />
-                    <Route path="/attractions" element={<AttractionsPage />} />
-                    <Route path="/supportfaqs" element={<SupportPage />} />
-                    <Route path="/register" element={<RegisterPage />} />
-                    <Route path="/itinerary" element={<ItineraryPage />} />
-                </Routes>
-            </Router>
-        </ItineraryProvider>
-    );
+	return (
+		<ItineraryProvider>
+			<Router>
+				<Routes>
+					<Route path="/" element={<HomePage />} />
+					<Route path="/hotels" element={<HotelPage />} />
+					<Route path="/account" element={<AccountPage />} />
+					<Route path="/login" element={<LoginPage />} />
+					<Route path="/transportation" element={<TransportationPage />} />
+					<Route path="/attractions" element={<AttractionsPage />} />
+					<Route path="/supportfaqs" element={<SupportPage />} />
+					<Route path="/register" element={<RegisterPage />} />
+					<Route path="/itinerary" element={<ItineraryPage />} />
+					<Route path="/404-error" element={<ErrorPage />} />
+				</Routes>
+			</Router>
+		</ItineraryProvider>
+	);
 }
 
 export default App;
