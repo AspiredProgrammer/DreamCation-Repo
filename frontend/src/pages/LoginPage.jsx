@@ -53,7 +53,7 @@ const LoginPage = () => {
 	};
 
 	return (
-		<div className="base">
+		<div className="homepage">
 			{/* <NavBar /> */}
 			<div style={{ margin: "20px" }}>
 				<Link
@@ -75,8 +75,8 @@ const LoginPage = () => {
 
 						<ToastContainer />
 
-						<form onSubmit={handleLogin}>
-							<div>
+						<form onSubmit={handleLogin} className="search-form">
+							<div className="form-group">
 								<label>Username:</label>
 								<input
 									type="text"
@@ -85,7 +85,7 @@ const LoginPage = () => {
 								/>
 							</div>
 
-							<div>
+							<div className="form-group">
 								<label>Password: </label>
 								<input
 									type="password"
@@ -93,23 +93,23 @@ const LoginPage = () => {
 									onChange={(e) => setPassword(e.target.value)}
 								/>
 							</div>
-							<div>
-								<button type="submit" className="btn-primary">
-									Login
-								</button>
-								<Link
-									className="btn-secondary"
-									to="/register"
-									style={{
-										textDecoration: "none",
-										fontWeight: "bold",
-										fontSize: "16px",
-									}}
-								>
-									Not registered? Click here to register!
-								</Link>
-							</div>
+							<button type="submit" className="search-button">
+								Login
+							</button>
 						</form>
+						<div>
+							<Link
+								className="search-button"
+								to="/register"
+								style={{
+									textDecoration: "none",
+									fontWeight: "bold",
+									fontSize: "16px",
+								}}
+							>
+								Not registered? Click here to register!
+							</Link>
+						</div>
 					</div>
 				</div>
 			</section>

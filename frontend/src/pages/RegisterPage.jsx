@@ -153,9 +153,9 @@ const RegisterPage = () => {
 	};
 
 	return (
-		<div className="base">
-			<Navbar />
-			{/* <div style={{ margin: "20px" }}>
+		<div className="homepage">
+			{/* <Navbar /> */}
+			<div style={{ margin: "20px" }}>
 				<Link
 					to="/"
 					style={{
@@ -167,7 +167,7 @@ const RegisterPage = () => {
 				>
 					← Back to Home
 				</Link>
-			</div> */}
+			</div>
 			<section id="home" className="main-box">
 				<div className="content">
 					<div>
@@ -175,28 +175,30 @@ const RegisterPage = () => {
 						<div>
 							<ToastContainer />
 
-							<form onSubmit={handleSubmit}>
-								<div>
+							<form onSubmit={handleSubmit} className="search-form">
+								<div className="form-group">
 									<label>First name: </label>
 									<input
 										type="text"
 										id="firstName"
 										name="firstName"
 										value={formData.firstName}
+										placeholder="e.g. Jane"
 										onChange={handleChange}
 									/>
 								</div>
-								<div>
+								<div className="form-group">
 									<label>Last name: </label>
 									<input
 										type="text"
 										id="lastName"
 										name="lastName"
 										value={formData.lastName}
+										placeholder="e.g. Doe"
 										onChange={handleChange}
 									/>
 								</div>
-								<div>
+								<div className="form-group">
 									<label>Username: </label>
 									<input
 										type="text"
@@ -206,7 +208,7 @@ const RegisterPage = () => {
 										onChange={handleChange}
 									/>
 								</div>
-								<div>
+								<div className="form-group">
 									<label>Email: </label>
 									<input
 										type="email"
@@ -216,17 +218,18 @@ const RegisterPage = () => {
 										onChange={handleChange}
 									/>
 								</div>
-								<div>
+								<div className="form-group">
 									<label>Phone number (excluding "-/"): </label>
 									<input
 										type="tel"
 										id="phoneNum"
 										name="phoneNum"
 										value={formData.phoneNum}
+										placeholder="e.g. 1234567890"
 										onChange={handleChange}
 									/>
 								</div>
-								<div>
+								<div className="form-group">
 									<label>Password: </label>
 									<input
 										type="password"
@@ -236,7 +239,7 @@ const RegisterPage = () => {
 										onChange={handleChange}
 									/>
 								</div>
-								<div>
+								<div className="form-group">
 									<label>Confirm your password: </label>
 									<input
 										type="password"
@@ -247,7 +250,7 @@ const RegisterPage = () => {
 									/>
 								</div>
 								{isAuthorized && (
-									<div>
+									<div className="form-group">
 										<label htmlFor="role">Select role</label>
 										<select
 											id="role"
@@ -263,13 +266,13 @@ const RegisterPage = () => {
 										</select>
 									</div>
 								)}
-								<button type="submit" className="btn-primary">
+								<button type="submit" className="search-button">
 									Complete registration
 								</button>
 							</form>
 						</div>
 						<Link
-							className="btn-secondary"
+							className="search-button"
 							to="/login"
 							style={{
 								textDecoration: "none",

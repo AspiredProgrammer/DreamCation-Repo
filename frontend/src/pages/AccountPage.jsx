@@ -27,9 +27,9 @@ const AccountPage = () => {
 		}
 	}, []);
 	return (
-		<div className="base">
-			{/* <NavBar /> */}
-			<div style={{ margin: "20px" }}>
+		<div className="homepage">
+			<NavBar />
+			{/* <div style={{ margin: "20px" }}>
 				<Link
 					to="/"
 					style={{
@@ -41,7 +41,7 @@ const AccountPage = () => {
 				>
 					← Back to Home
 				</Link>
-			</div>
+			</div> */}
 			<section id="home" className="main-box">
 				<div className="content">
 					<div>
