@@ -32,8 +32,7 @@ const HotelPage = () => {
 
 		try {
 			const response = await fetch(
-				`${process.env.REACT_APP_BACKEND_URL
-				}/api/hotels?city=${encodeURIComponent(
+				`/api/hotels?city=${encodeURIComponent(
 					city.trim()
 				)}&page=${page}&limit=10`
 			);
@@ -113,8 +112,7 @@ const HotelPage = () => {
 		setHasSearched(true);
 		try {
 			const response = await fetch(
-				`${process.env.REACT_APP_BACKEND_URL
-				}/api/hotels?city=${encodeURIComponent(
+				`/api/hotels?city=${encodeURIComponent(
 					cityName.trim()
 				)}&page=1&limit=10`
 			);
