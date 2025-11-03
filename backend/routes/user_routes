@@ -17,7 +17,9 @@ const jwt = require("jsonwebtoken");
 // 		cookie: { secure: process.env.NODE_ENV === "production" },
 // 	})
 // );
-
+// router.get("/register", async (req, res) => {
+// 	if()
+// })
 router.post("/register", async (req, res) => {
 	await check("firstName", "First Name is required").notEmpty().run(req);
 	await check("lastName", "Last Name is required").notEmpty().run(req);

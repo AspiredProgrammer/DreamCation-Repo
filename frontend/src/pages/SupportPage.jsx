@@ -27,7 +27,7 @@ const SupportPage = () => {
 	];
 
 	return (
-		<div className="index-container" style={{ overflow: "hidden" }}>
+		<div className="homepage" style={{ overflow: "hidden" }}>
 			<Navbar />
 			<div className="main-box">
 				<div className="faq-container">
