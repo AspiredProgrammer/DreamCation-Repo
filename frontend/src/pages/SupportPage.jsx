@@ -10,7 +10,7 @@ const SupportPage = () => {
 	const faqs = [
 		{
 			q: "What is DreamCation?",
-			a: "Dreamy Goodies is an web-based itinerary website with various features you might see on other websites like TripAdvisor or iTravel however here it's altogether in one place.",
+			a: "DreamCation is an web-based itinerary website with various features you might see on other websites like TripAdvisor or iTravel however here it's altogether in one place.",
 		},
 		{
 			q: "What is the team's goal?",

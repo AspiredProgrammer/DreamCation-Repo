@@ -59,12 +59,14 @@ const AccountPage = () => {
 
 					{isAuthorized && (
 						<>
-							<div style={{ backgroundColor: "red" }}>
+							<div>
 								<p>
 									As an administrator, you may register any new users, right
 									here:
 								</p>
-								<Link to="/register">Register</Link>
+								<Link className="search-button" to="/register">
+									Register
+								</Link>
 							</div>
 						</>
 					)}
