@@ -6,7 +6,8 @@ To run this project locally:
 
 Clone the repository:
 git clone https://github.com/AspiredProgrammer/DreamCation-Repo.git
-cd <your-project-folder>
+
+cd (Name of your project folder or where you want to save the project.)
 
 Run the install script:
 npm install
