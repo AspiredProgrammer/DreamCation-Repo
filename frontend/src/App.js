@@ -24,13 +24,13 @@ function App() {
 				<Routes>
 					<Route path="/" element={<HomePage />} />
 					<Route path="/hotels" element={<HotelPage />} />
-					<Route path="/account" element={<AccountPage />} />
+					<Route path="/account" element={<AccountPage />} /> {/*this page should be protected*/}
 					<Route path="/login" element={<LoginPage />} />
 					<Route path="/transportation" element={<TransportationPage />} />
 					<Route path="/attractions" element={<AttractionsPage />} />
 					<Route path="/supportfaqs" element={<SupportPage />} />
 					<Route path="/register" element={<RegisterPage />} />
-					<Route path="/itinerary" element={<ItineraryPage />} />
+					<Route path="/itinerary" element={<ItineraryPage />} /> {/*this page should be protected*/}
 					<Route path="/404-error" element={<ErrorPage />} />
 				</Routes>
 			</Router>
