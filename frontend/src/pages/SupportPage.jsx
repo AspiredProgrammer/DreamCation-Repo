@@ -1,12 +1,27 @@
 import React, { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { Accordion, Card } from "react-bootstrap";
+import { jwtDecode } from "jwt-decode";
 import "../Styles/FAQ.css";
 import "../Styles/MainStyles.css";
 import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";
 
 const SupportPage = () => {
+	const token = localStorage.getItem("token");
+	let decodedToken = null;
+	let isAuthorized = false;
+
+	if (token && token.split(".").length === 3) {
+		try {
+			decodedToken = jwtDecode(token);
+			isAuthorized = decodedToken?.scope === "ADMIN";
+		} catch (err) {
+			console.error("Invalid token:", err.message);
+			localStorage.removeItem("token"); // Remove invalid token
+		}
+	}
+
 	const faqs = [
 		{
 			q: "What is DreamCation?",
@@ -25,7 +40,50 @@ const SupportPage = () => {
 			a: "Registered users have the privlege to 'save' their travel planning research into an 'itinerary' where they can later view on their account page. You can view your dream plans and even share it with friends!",
 		},
 	];
+	const [message, setMessage] = useState("");
 
+	const handleSubmit = async (e) => {
+		console.log("ENDPOINT is:", process.env.REACT_APP_ENDPOINT);
+
+		e.preventDefault();
+
+		if (!message) {
+			toast.error("Cannot submit empty field!", { position: "bottom-right" });
+		}
+
+		try {
+			console.log(process.env);
+			const response = await fetch(`/user/support`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					...(isAuthorized && token
+						? { Authorization: `Bearer ${token}` }
+						: {}),
+				},
+				body: JSON.stringify(message),
+			});
+
+			const data = await response.json();
+			if (!response.ok) {
+				toast.error("Error: " + data, { position: "top-right" });
+			} else {
+				toast.success("Message sent!", { position: "top-right" });
+
+				setMessage("");
+			}
+		} catch (error) {
+			console.error("Error registering user:", error);
+			toast.error("Error registering user!", { position: "top-right" });
+		}
+	};
+
+	const handleChange = (e) => {
+		setMessage({
+			...message,
+			[e.target.name]: e.target.value,
+		});
+	};
 	return (
 		<div className="faqpage">
 			<Navbar />
@@ -47,6 +105,30 @@ const SupportPage = () => {
 								</Card>
 							))}
 						</Accordion>
+
+						<section>
+							<h2>Supoport Form</h2>
+							<p style={{ textDecoration: "italic" }}>
+								Have any questions or concerns? Want to share it with us? Submit
+								your questions in the form below!
+							</p>
+						</section>
+
+						<form onSubmit={handleSubmit} className="search-form">
+							<div className="form-group">
+								<input
+									type="text"
+									name="msg"
+									value={message}
+									placeholder=""
+									onChange={handleChange}
+								/>
+							</div>
+
+							<button type="submit" className="search-button">
+								Complete registration
+							</button>
+						</form>
 					</div>
 				</div>
 			</div>

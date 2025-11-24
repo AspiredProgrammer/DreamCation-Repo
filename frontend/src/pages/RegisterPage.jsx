@@ -37,40 +37,7 @@ const RegisterPage = () => {
 		console.log("ENDPOINT is:", process.env.REACT_APP_ENDPOINT);
 
 		e.preventDefault();
-		//WORK IN PROGRESS, DON'T DELETE-->
-		// formData.forEach((i) => {
-		// 	if (
-		// 		i === formData.firstName ||
-		// 		i === formData.lastName ||
-		// 		i === formData.username ||
-		// 		i === formData.email
-		// 	) {
-		// 		toast.error(`${i} is required!`, { position: "bottom-right" });
-		// 	}
-		// 	if (i === formData.phoneNum) {
-		// 		if (!i || i.length !== 10) {
-		// 			toast.error(
-		// 				"Phone number is required! Please enter a ten-digit number!",
-		// 				{
-		// 					position: "bottom-right",
-		// 				}
-		// 			);
-		// 		}
-		// 	}
-		// 	if (i === formData.password || i === formData.confirm_password) {
-		// 		if (!i || i.length < 10) {
-		// 			toast.error(`${i} is required! At least 10 characters!`, {
-		// 				position: "bottom-right",
-		// 			});
-		// 		}
-		// 	}
-		// 	if (formData.password !== formData.confirm_password) {
-		// 		toast.error("Password and Confirm password must match", {
-		// 			position: "bottom-right",
-		// 		});
-		// 	}
-		// });
-		// const fieldErrors = [];
+
 		if (!formData.firstName) {
 			toast.error("First name is required!", { position: "bottom-right" });
 		}
