@@ -23,3 +23,4 @@ router.delete("/itinerary", itineraryController.clearItinerary);
 
 module.exports = router;
 
+//reminder - must protect all routes here from non logged-in users
