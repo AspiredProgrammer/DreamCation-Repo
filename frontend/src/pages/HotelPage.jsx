@@ -434,16 +434,50 @@ const HotelPage = () => {
 													href={hotel.url}
 													target="_blank"
 													rel="noopener noreferrer"
-													className="hotel-link"
 													style={{
-														padding: "8px 16px",
+														padding: "12px 24px",
 														textDecoration: "none",
-														borderRadius: "4px",
-														fontSize: "14px"
+														borderRadius: "6px",
+														fontSize: "15px",
+														fontWeight: "600",
+														backgroundColor: "#4CAF50",
+														color: "white",
+														display: "inline-flex",
+														alignItems: "center",
+														gap: "8px",
+														transition: "all 0.2s ease",
+														flex: "1",
+														minWidth: "200px",
+														justifyContent: "center",
+														boxShadow: "0 2px 8px rgba(76, 175, 80, 0.3)"
+													}}
+													onMouseEnter={(e) => {
+														e.target.style.backgroundColor = "#45a049";
+														e.target.style.transform = "translateY(-1px)";
+														e.target.style.boxShadow = "0 4px 12px rgba(76, 175, 80, 0.4)";
+													}}
+													onMouseLeave={(e) => {
+														e.target.style.backgroundColor = "#4CAF50";
+														e.target.style.transform = "translateY(0)";
+														e.target.style.boxShadow = "0 2px 8px rgba(76, 175, 80, 0.3)";
 													}}
 												>
-													View on Google Maps
+													🔗 View Hotel Site & Book
 												</a>
+											)}
+											{!hotel.url && (
+												<div style={{ 
+													padding: "12px 24px",
+													borderRadius: "6px",
+													fontSize: "14px",
+													backgroundColor: "rgba(255, 255, 255, 0.1)",
+													color: "rgba(255, 255, 255, 0.6)",
+													textAlign: "center",
+													flex: "1",
+													minWidth: "200px"
+												}}>
+													Booking link not available
+												</div>
 											)}
 											<button
 												onClick={() => addToItinerary({
