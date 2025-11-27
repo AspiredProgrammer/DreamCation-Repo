@@ -25,25 +25,25 @@ app.get("/health", (req, res) => {
 		timestamp: new Date().toISOString(),
 		uptime: process.uptime(),
 		services: {
-			user: process.env.USER_SERVICE_URL,
-			hotel: process.env.HOTEL_SERVICE_URL,
-			flight: process.env.FLIGHT_SERVICE_URL,
-			activity: process.env.ACTIVITY_SERVICE_URL,
-			car: process.env.CAR_SERVICE_URL,
-			itinerary: process.env.ITINERARY_SERVICE_URL,
+			user: process.env.USER_ENDPOINT,
+			hotel: process.env.HOTEL_ENDPOINT,
+			flight: process.env.FLIGHT_ENDPOINT,
+			activity: process.env.ACTIVITY_ENDPOINT,
+			car: process.env.CAR_ENDPOINT,
+			itinerary: process.env.ITINERARY_ENDPOINT,
 		},
 	});
 });
 
 // Proxy middleware for each service
 const userServiceProxy = createProxyMiddleware({
-	target: process.env.USER_SERVICE_URL || "http://localhost:8001",
+	target: process.env.USER_ENDPOINT, //|| "http://localhost:8001",
 	changeOrigin: true,
 	pathRewrite: { "^/api": "" }, // Remove /api from user routes
 });
 
 const hotelServiceProxy = createProxyMiddleware({
-	target: process.env.HOTEL_SERVICE_URL || "http://localhost:8002",
+	target: process.env.HOTEL_ENDPOINT, // || "http://localhost:8002",
 	changeOrigin: true,
 	pathRewrite: function (path, req) { 
 		// Express strips /api/hotels prefix, add it back
@@ -52,7 +52,7 @@ const hotelServiceProxy = createProxyMiddleware({
 });
 
 const flightServiceProxy = createProxyMiddleware({
-	target: process.env.FLIGHT_SERVICE_URL || "http://localhost:8003",
+	target: process.env.FLIGHT_ENDPOINT, // || "http://localhost:8003",
 	changeOrigin: true,
 	pathRewrite: function (path, req) { 
 		return "/api/flights" + path;
@@ -60,7 +60,7 @@ const flightServiceProxy = createProxyMiddleware({
 });
 
 const activityServiceProxy = createProxyMiddleware({
-	target: process.env.ACTIVITY_SERVICE_URL || "http://localhost:8004",
+	target: process.env.ACTIVITY_ENDPOINT, // || "http://localhost:8004",
 	changeOrigin: true,
 	pathRewrite: function (path, req) { 
 		// Express strips prefix, so path is already stripped
@@ -74,7 +74,7 @@ const activityServiceProxy = createProxyMiddleware({
 });
 
 const carServiceProxy = createProxyMiddleware({
-	target: process.env.CAR_SERVICE_URL || "http://localhost:8005",
+	target: process.env.CAR_ENDPOINT, // || "http://localhost:8005",
 	changeOrigin: true,
 	pathRewrite: function (path, req) { 
 		return "/api/cars" + path;
@@ -82,7 +82,7 @@ const carServiceProxy = createProxyMiddleware({
 });
 
 const itineraryServiceProxy = createProxyMiddleware({
-	target: process.env.ITINERARY_SERVICE_URL || "http://localhost:8006",
+	target: process.env.ITINERARY_ENDPOINT, // || "http://localhost:8006",
 	changeOrigin: true,
 	pathRewrite: function (path, req) { 
 		return "/api/itinerary" + path;

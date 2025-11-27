@@ -11,7 +11,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
 	cors({
-		origin: ["http://localhost:3000", "http://localhost:3001"], // Frontend and API Gateway
+		//http://localhost:3000
+		origin: [process.env.FRONTEND_ENDPOINT], // Frontend and API Gateway
 		methods: ["GET", "POST", "OPTIONS"],
 		credentials: true,
 	})
@@ -32,7 +33,7 @@ app.use("/api", hotelRoutes);
 
 // Start server
 app.listen(PORT, () => {
-	console.log(`🏨 Hotel Service running on http://localhost:${PORT}`);
+	console.log(`🏨 Hotel Service running on ${process.env.HOTEL_ENDPOINT}`);
 	console.log(`📊 Health check: http://localhost:${PORT}/health`);
 	console.log(`🔑 Google API Key configured: ${!!process.env.GOOGLE_API_KEY}`);
 });

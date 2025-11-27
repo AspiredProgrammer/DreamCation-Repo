@@ -68,7 +68,8 @@ const RegisterPage = () => {
 
 		try {
 			console.log(process.env);
-			const response = await fetch(`http://localhost:8001/user/register`, {
+			//http://localhost:8001/user/register
+			const response = await fetch(process.env.USER_ENDPOINT + `user/register`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
