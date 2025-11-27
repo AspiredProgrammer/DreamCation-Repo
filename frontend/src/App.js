@@ -31,7 +31,7 @@ function App() {
 					<Route path="/register" element={<RegisterPage />} />
 					<Route path="/itinerary" element={<ItineraryPage />} />{" "}
 					{/*this page should be protected*/}
-					<Route path="/404-error" element={<ErrorPage />} />
+					<Route path="/404" element={<ErrorPage />} />
 				</Routes>
 			</Router>
 		</ItineraryProvider>

@@ -22,7 +22,8 @@ const LoginPage = () => {
 		}
 		try {
 			console.log(process.env);
-			const response = await fetch(`http://localhost:8001/user/login`, {
+			// http://localhost:8001/user/login
+			const response = await fetch(process.env.USER_ENDPOINT + `user/login`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",

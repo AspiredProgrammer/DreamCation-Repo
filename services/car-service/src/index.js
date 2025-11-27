@@ -11,7 +11,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
 	cors({
-		origin: ["http://localhost:3000", "http://localhost:3001"],
+		//http://localhost:3000
+		origin: [process.env.FRONTEND_ENDPOINT],
 		methods: ["GET", "POST", "OPTIONS"],
 		credentials: true,
 	})
@@ -32,7 +33,7 @@ app.use("/api", carRoutes);
 
 // Start server
 app.listen(PORT, () => {
-	console.log(`🚗 Car Service running on http://localhost:${PORT}`);
+	console.log(`🚗 Car Service running on ${process.env.CAR_ENDPOINT}`);
 	console.log(`📊 Health check: http://localhost:${PORT}/health`);
 	console.log(`🔑 Amadeus configured: ${!!process.env.AMA_KEY}`);
 });

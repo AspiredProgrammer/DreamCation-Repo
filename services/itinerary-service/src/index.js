@@ -11,7 +11,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
 	cors({
-		origin: ["http://localhost:3000", "http://localhost:3001"],
+		//http:localhost:3000
+		origin: [process.env.FRONTEND_ENDPOINT],
 		methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 		credentials: true,
 	})
@@ -32,7 +33,7 @@ app.use("/api", itineraryRoutes);
 
 // Start server
 app.listen(PORT, () => {
-	console.log(`📅 Itinerary Service running on http://localhost:${PORT}`);
+	console.log(`📅 Itinerary Service running on ${process.env.ITINERARY_ENDPOINT}`);
 	console.log(`📊 Health check: http://localhost:${PORT}/health`);
 	console.log(`🔑 JWT Secret configured: ${!!process.env.JWT_SECRET}`);
 });
