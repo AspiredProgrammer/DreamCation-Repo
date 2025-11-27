@@ -429,42 +429,76 @@ const HotelPage = () => {
 											</div>
 										</div>
 										<div style={{ display: "flex", gap: "8px", marginTop: "8px", flexWrap: "wrap" }}>
-											{hotel.url && (
-												<a
-													href={hotel.url}
-													target="_blank"
-													rel="noopener noreferrer"
-													style={{
-														padding: "12px 24px",
-														textDecoration: "none",
-														borderRadius: "6px",
-														fontSize: "15px",
-														fontWeight: "600",
-														backgroundColor: "#4CAF50",
-														color: "white",
-														display: "inline-flex",
-														alignItems: "center",
-														gap: "8px",
-														transition: "all 0.2s ease",
-														flex: "1",
-														minWidth: "200px",
-														justifyContent: "center",
-														boxShadow: "0 2px 8px rgba(76, 175, 80, 0.3)"
-													}}
-													onMouseEnter={(e) => {
-														e.target.style.backgroundColor = "#45a049";
-														e.target.style.transform = "translateY(-1px)";
-														e.target.style.boxShadow = "0 4px 12px rgba(76, 175, 80, 0.4)";
-													}}
-													onMouseLeave={(e) => {
-														e.target.style.backgroundColor = "#4CAF50";
-														e.target.style.transform = "translateY(0)";
-														e.target.style.boxShadow = "0 2px 8px rgba(76, 175, 80, 0.3)";
-													}}
-												>
-													🔗 View Hotel Site & Book
-												</a>
-											)}
+											{hotel.url && (() => {
+												// Ensure the booking URL includes the correct dates
+												let bookingUrl = hotel.url;
+												// If URL is from TripAdvisor, update dates in the URL
+												if (bookingUrl.includes('tripadvisor') && hotel.checkIn && hotel.checkOut) {
+													try {
+														// Parse dates to format needed for URL
+														const checkInDate = new Date(hotel.checkIn);
+														const checkOutDate = new Date(hotel.checkOut);
+														const formatDateForUrl = (date) => {
+															const year = date.getFullYear();
+															const month = String(date.getMonth() + 1).padStart(2, '0');
+															const day = String(date.getDate()).padStart(2, '0');
+															return `${year}-${month}-${day}`;
+														};
+														
+														// TripAdvisor URLs use specific date format in query params
+														const urlObj = new URL(bookingUrl);
+														// Update date parameters - TripAdvisor uses inDay, outDay, inMonth, outMonth, inYear, outYear
+														urlObj.searchParams.set('inDay', String(checkInDate.getDate()));
+														urlObj.searchParams.set('outDay', String(checkOutDate.getDate()));
+														urlObj.searchParams.set('inMonth', String(checkInDate.getMonth() + 1));
+														urlObj.searchParams.set('outMonth', String(checkOutDate.getMonth() + 1));
+														urlObj.searchParams.set('inYear', String(checkInDate.getFullYear()));
+														urlObj.searchParams.set('outYear', String(checkOutDate.getFullYear()));
+														urlObj.searchParams.set('adults', occupants.toString());
+														bookingUrl = urlObj.toString();
+													} catch (e) {
+														// If URL parsing fails, use original URL
+														console.warn('Failed to update booking URL dates:', e);
+													}
+												}
+												
+												return (
+													<a
+														href={bookingUrl}
+														target="_blank"
+														rel="noopener noreferrer"
+														style={{
+															padding: "12px 24px",
+															textDecoration: "none",
+															borderRadius: "6px",
+															fontSize: "15px",
+															fontWeight: "600",
+															backgroundColor: "#4CAF50",
+															color: "white",
+															display: "inline-flex",
+															alignItems: "center",
+															gap: "8px",
+															transition: "all 0.2s ease",
+															flex: "1",
+															minWidth: "200px",
+															justifyContent: "center",
+															boxShadow: "0 2px 8px rgba(76, 175, 80, 0.3)"
+														}}
+														onMouseEnter={(e) => {
+															e.target.style.backgroundColor = "#45a049";
+															e.target.style.transform = "translateY(-1px)";
+															e.target.style.boxShadow = "0 4px 12px rgba(76, 175, 80, 0.4)";
+														}}
+														onMouseLeave={(e) => {
+															e.target.style.backgroundColor = "#4CAF50";
+															e.target.style.transform = "translateY(0)";
+															e.target.style.boxShadow = "0 2px 8px rgba(76, 175, 80, 0.3)";
+														}}
+													>
+														🔗 View Hotel Site & Book
+													</a>
+												);
+											})()}
 											{!hotel.url && (
 												<div style={{ 
 													padding: "12px 24px",
