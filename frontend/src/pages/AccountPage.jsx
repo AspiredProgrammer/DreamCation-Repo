@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import NavBar from "../Components/Navbar";
 import Footer from "../Components/Footer";
@@ -14,6 +14,8 @@ const AccountPage = () => {
 	const scope = decodedToken ? decodedToken.scope : "";
 
 	const isAuthorized = isLoggedIn && scope === "ADMIN";
+
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		const params = new URLSearchParams(window.location.search);
@@ -31,45 +33,45 @@ const AccountPage = () => {
 		}
 	}, []);
 	return (
-		<div className="homepage mainbox">
+		<div className="accountpage">
 			<NavBar />
-			{/* <div style={{ margin: "20px" }}>
-				<Link
-					to="/"
-					style={{
-						textDecoration: "none",
-						color: "#667eea",
-						fontWeight: "bold",
-						fontSize: "16px",
-					}}
-				>
-					← Back to Home
-				</Link>
-			</div> */}
 			<section className="main-box">
-				<div className="content">
+				<div className="inner-box">
 					<div>
 						<h1 className="main-title">My Account</h1>
 						{isLoggedIn && (
-							<p className="subtitle">
+							<p className="sub-title">
 								Welcome to your account page, {username}
 							</p>
 						)}
 					</div>
-
-					{isAuthorized && (
-						<>
+					<div>
+						{isAuthorized && (
 							<div>
-								<p>
+								<p className="box-one">
 									As an administrator, you may register any new users, right
 									here:
 								</p>
-								<Link className="search-button" to="/register">
+								<button
+									className="navigate-btn"
+									onClick={() => navigate("/register")}
+								>
 									Register
-								</Link>
+								</button>
 							</div>
-						</>
-					)}
+						)}
+						<div className="box-two">
+							<span className="box-one">
+								Would you like to see your itinerary? Click below!
+							</span>
+							<button
+								className="navigate-btn"
+								onClick={() => navigate("/itinerary")}
+							>
+								Go to Itinerary
+							</button>
+						</div>
+					</div>
 				</div>
 			</section>
 			<Footer />

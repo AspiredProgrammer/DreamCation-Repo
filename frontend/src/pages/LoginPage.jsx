@@ -4,6 +4,7 @@ import { toast, ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import NavBar from "../Components/Navbar";
 import Footer from "../Components/Footer";
+import "../Styles/Login.css";
 
 const LoginPage = () => {
 	const [username, setUsername] = useState("");
@@ -44,7 +45,7 @@ const LoginPage = () => {
 
 			console.log("Login successful");
 			toast.success("Login successful!", { position: "top-right" });
-			navigate("/");
+			window.location.href = "/";
 			// window.location.href = "/"; // Redirect to the  home page
 		} catch (error) {
 			console.log(error.message);
@@ -53,7 +54,7 @@ const LoginPage = () => {
 	};
 
 	return (
-		<div className="homepage">
+		<div className="loginpage">
 			{/* <NavBar /> */}
 			<div style={{ margin: "20px" }}>
 				<Link
@@ -68,10 +69,10 @@ const LoginPage = () => {
 					← Back to Home
 				</Link>
 			</div>
-			<section id="home" className="main-box">
+			<section className="main-box">
 				<div className="content">
 					<div>
-						<h1 className="main-title">Login</h1>
+						<h1 className="big-title">Login</h1>
 
 						<ToastContainer />
 

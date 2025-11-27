@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";
+import "../Styles/Register.css";
 
 const RegisterPage = () => {
 	const [errors, setErrors] = useState([]);
@@ -93,7 +94,7 @@ const RegisterPage = () => {
 
 				toast.success("Registration successful!", { position: "top-right" });
 
-				navigate("/");
+				window.location.href = "/";
 
 				setErrors([]);
 				setFormData({
@@ -122,7 +123,7 @@ const RegisterPage = () => {
 	};
 
 	return (
-		<div className="homepage">
+		<div className="register-page">
 			{/* <Navbar /> */}
 			<div style={{ margin: "20px" }}>
 				<Link
@@ -137,10 +138,10 @@ const RegisterPage = () => {
 					← Back to Home
 				</Link>
 			</div>
-			<section id="home" className="main-box">
+			<section className="main-box">
 				<div className="content">
 					<div>
-						<h1 className="main-title">Registration</h1>
+						<h1 className="big-title">Registration</h1>
 						<div>
 							<ToastContainer />
 
@@ -218,23 +219,23 @@ const RegisterPage = () => {
 										onChange={handleChange}
 									/>
 								</div>
-								{/* {isAuthorized && ( */}
-								<div className="form-group">
-									<label htmlFor="role">Select role</label>
-									<select
-										id="role"
-										name="role"
-										value={formData.role}
-										onChange={handleChange}
-									>
-										<option value="" disabled>
-											Choose...
-										</option>
-										<option value="ADMIN">ADMIN</option>
-										<option value="CUSTOMER">CUSTOMER</option>
-									</select>
-								</div>
-								{/* )} */}
+								{isAuthorized && (
+									<div className="form-group">
+										<label htmlFor="role">Select role</label>
+										<select
+											id="role"
+											name="role"
+											value={formData.role}
+											onChange={handleChange}
+										>
+											<option value="" disabled>
+												Choose...
+											</option>
+											<option value="ADMIN">ADMIN</option>
+											<option value="CUSTOMER">CUSTOMER</option>
+										</select>
+									</div>
+								)}
 								<button type="submit" className="search-button">
 									Complete registration
 								</button>

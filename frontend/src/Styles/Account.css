@@ -1,8 +1,58 @@
-accountpage {
+.accountpage {
 	background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)),
-		url("../assets/hotelbg.jpg");
+		url("../assets/accountbg.jpg");
 	background-size: cover;
 	background-position: center;
 	background-repeat: no-repeat;
 	background-blend-mode: overlay;
+}
+.inner-box {
+	max-width: 1200px;
+	margin: 0 auto;
+	gap: 4rem;
+	align-items: center;
+	position: relative;
+	z-index: 2;
+}
+
+.sub-title {
+	font-size: 1.2rem;
+	margin-bottom: 2rem;
+	line-height: 1.6;
+	font-weight: 500;
+	color: white !important;
+}
+
+.box-one {
+	border: 1px white solid;
+	border-radius: 5px;
+	padding: 5px;
+	color: white;
+	margin-bottom: 10px;
+}
+
+.box-two {
+	display: flex;
+	flex-direction: column;
+	margin-top: 15px;
+}
+
+.navigate-btn {
+	max-width: fit-content;
+	padding: 10px;
+	background: linear-gradient(45deg, #ffd700, #ffed4e);
+	color: #2c3e50;
+	border: none;
+	border-radius: 10px;
+	font-size: 1.1rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+	text-decoration: none;
+}
+
+.navigate-btn:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
 }

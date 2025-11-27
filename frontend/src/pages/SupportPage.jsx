@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
-import { Accordion, Card } from "react-bootstrap";
+import { Accordion } from "react-bootstrap";
 import { jwtDecode } from "jwt-decode";
 import "../Styles/FAQ.css";
-import "../Styles/MainStyles.css";
+// import "../Styles/MainStyles.css";
 import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";
 
@@ -79,36 +79,31 @@ const SupportPage = () => {
 	};
 
 	const handleChange = (e) => {
-		setMessage({
-			...message,
-			[e.target.name]: e.target.value,
-		});
+		setMessage(e.target.value);
 	};
+
 	return (
 		<div className="faqpage">
 			<Navbar />
 			<div className="main-box">
-				<div className="faq-container">
+				<div className="inner-box">
 					<div className="faq-section">
 						<h1 style={{ fontSize: "2.5rem", marginBottom: "1.5rem" }}>
 							Frequently Asked Questions
 						</h1>
 
 						<Accordion defaultActiveKey="0">
-							{" "}
 							{faqs.map((faq, index) => (
-								<Card key={index}>
-									<Accordion.Item eventKey={String(index)}>
-										<Accordion.Header>{faq.q}</Accordion.Header>
-										<Accordion.Body>{faq.a}</Accordion.Body>
-									</Accordion.Item>
-								</Card>
+								<Accordion.Item key={index} eventKey={String(index)}>
+									<Accordion.Header>{faq.q}</Accordion.Header>
+									<Accordion.Body>{faq.a}</Accordion.Body>
+								</Accordion.Item>
 							))}
 						</Accordion>
 
 						<section>
-							<h2>Supoport Form</h2>
-							<p style={{ textDecoration: "italic" }}>
+							<h2 style={{ color: "white" }}>Support Form</h2>
+							<p style={{ textDecoration: "italic", color: "white" }}>
 								Have any questions or concerns? Want to share it with us? Submit
 								your questions in the form below!
 							</p>
@@ -116,13 +111,7 @@ const SupportPage = () => {
 
 						<form onSubmit={handleSubmit} className="search-form">
 							<div className="form-group">
-								<input
-									type="text"
-									name="msg"
-									value={message}
-									placeholder=""
-									onChange={handleChange}
-								/>
+								<input type="text" value={message} onChange={handleChange} />
 							</div>
 
 							<button type="submit" className="search-button">

@@ -1,0 +1,16 @@
+.register-page {
+	background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)),
+		url("../assets/registerbg.jpg");
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+	background-blend-mode: overlay;
+}
+.big-title {
+	font-size: 2.9rem;
+	font-weight: 700;
+	color: white;
+	margin-bottom: 0.5rem;
+	line-height: 1.2;
+	text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
