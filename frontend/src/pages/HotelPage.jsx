@@ -24,7 +24,7 @@ const HotelPage = () => {
 			const today = new Date();
 			const tomorrow = new Date(today);
 			tomorrow.setDate(tomorrow.getDate() + 1);
-			
+
 			const formatDate = (date) => {
 				if (!date || isNaN(date.getTime())) {
 					// Fallback if date is invalid
@@ -109,7 +109,7 @@ const HotelPage = () => {
 			// Check if response is JSON before parsing
 			const contentType = response.headers.get("content-type");
 			let data;
-			
+
 			if (contentType && contentType.includes("application/json")) {
 				data = await response.json();
 			} else {
@@ -333,7 +333,7 @@ const HotelPage = () => {
 												try {
 													const newCheckIn = new Date(selectedDate);
 													newCheckIn.setDate(newCheckIn.getDate() - 1);
-													if (newCheckIn >= new Date(new Date().setHours(0,0,0,0))) {
+													if (newCheckIn >= new Date(new Date().setHours(0, 0, 0, 0))) {
 														setCheckIn(newCheckIn.toISOString().split('T')[0]);
 													}
 												} catch (err) {
@@ -370,102 +370,108 @@ const HotelPage = () => {
 								</p>
 							)}
 
-						{hotels.map((hotel) => {
-							const nights = hotel.nights || calculateNights();
-							const pricePerNight = hotel.price ? (hotel.price / nights).toFixed(2) : null;
-							
-							return (
-							<div key={hotel.place_id} className="flight-card" style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-								<div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "16px" }}>
-									<div style={{ flex: 1 }}>
-										<div className="flight-title" style={{ marginBottom: "4px" }}>{hotel.name}</div>
-										<p className="flight-meta" style={{ marginBottom: "8px" }}>{hotel.vicinity}</p>
-										<div style={{ display: "flex", flexWrap: "wrap", gap: "8px", alignItems: "center" }}>
-											{hotel.rating && (
-												<span className="hotel-rating" style={{ fontSize: "14px" }}>
-													⭐ {hotel.rating.toFixed(1)}
-												</span>
+							{hotels.map((hotel) => {
+								// Always use backend's nights value - it's calculated from checkIn/checkOut dates
+								const nights = hotel.nights || calculateNights();
+								// Backend sends pricePerNight - multiply by nights to get total
+								const pricePerNight = hotel.pricePerNight || null;
+								// Calculate total price = pricePerNight * nights
+								const totalPrice = pricePerNight && nights > 0
+									? parseFloat((pricePerNight * nights).toFixed(2))
+									: null;
+
+								return (
+									<div key={hotel.place_id} className="flight-card" style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+										<div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "16px" }}>
+											<div style={{ flex: 1 }}>
+												<div className="flight-title" style={{ marginBottom: "4px" }}>{hotel.name}</div>
+												<p className="flight-meta" style={{ marginBottom: "8px" }}>{hotel.vicinity}</p>
+												<div style={{ display: "flex", flexWrap: "wrap", gap: "8px", alignItems: "center" }}>
+													{hotel.rating && (
+														<span className="hotel-rating" style={{ fontSize: "14px" }}>
+															⭐ {hotel.rating.toFixed(1)}
+														</span>
+													)}
+													{hotel.price_level && (
+														<span className="hotel-price-level" style={{ fontSize: "14px" }}>
+															{"💰".repeat(hotel.price_level)}
+														</span>
+													)}
+												</div>
+											</div>
+
+											{/* Price Display - Prominently shown on the right */}
+											<div style={{
+												textAlign: "right",
+												minWidth: "120px",
+												padding: "8px 12px",
+												backgroundColor: "rgba(76, 175, 80, 0.1)",
+												borderRadius: "8px",
+												border: "1px solid rgba(76, 175, 80, 0.3)"
+											}}>
+												{totalPrice ? (
+													<>
+														<div style={{ fontSize: "28px", fontWeight: "bold", color: "#4CAF50", lineHeight: "1.2" }}>
+															${totalPrice.toFixed(2)}
+														</div>
+														<div style={{ fontSize: "12px", color: "rgba(255, 255, 255, 0.8)", marginTop: "4px" }}>
+															${pricePerNight ? pricePerNight.toFixed(2) : 'N/A'}/night
+														</div>
+														<div style={{ fontSize: "11px", color: "rgba(255, 255, 255, 0.6)", marginTop: "2px" }}>
+															{nights} night{nights !== 1 ? 's' : ''} • {occupants} guest{occupants !== 1 ? 's' : ''}
+														</div>
+													</>
+												) : (
+													<div style={{ fontSize: "14px", color: "rgba(255, 255, 255, 0.6)", fontStyle: "italic" }}>
+														Price not available
+													</div>
+												)}
+											</div>
+										</div>
+										<div style={{ display: "flex", gap: "8px", marginTop: "8px", flexWrap: "wrap" }}>
+											{hotel.url && (
+												<a
+													href={hotel.url}
+													target="_blank"
+													rel="noopener noreferrer"
+													className="hotel-link"
+													style={{
+														padding: "8px 16px",
+														textDecoration: "none",
+														borderRadius: "4px",
+														fontSize: "14px"
+													}}
+												>
+													View on Google Maps
+												</a>
 											)}
-											{hotel.price_level && (
-												<span className="hotel-price-level" style={{ fontSize: "14px" }}>
-													{"💰".repeat(hotel.price_level)}
-												</span>
-											)}
+											<button
+												onClick={() => addToItinerary({
+													itemType: 'hotel',
+													itemId: hotel.place_id,
+													itemData: {
+														name: hotel.name,
+														vicinity: hotel.vicinity,
+														rating: hotel.rating,
+														placeId: hotel.place_id,
+														url: hotel.url,
+														price: totalPrice,
+														pricePerNight: pricePerNight,
+														checkIn: checkIn,
+														checkOut: checkOut,
+														occupants: occupants,
+														nights: nights,
+													},
+												})}
+												className="btn btn-primary"
+												style={{ flex: "1", minWidth: "150px" }}
+											>
+												Save to Itinerary
+											</button>
 										</div>
 									</div>
-									
-									{/* Price Display - Prominently shown on the right */}
-									<div style={{ 
-										textAlign: "right", 
-										minWidth: "120px",
-										padding: "8px 12px",
-										backgroundColor: "rgba(76, 175, 80, 0.1)",
-										borderRadius: "8px",
-										border: "1px solid rgba(76, 175, 80, 0.3)"
-									}}>
-										{hotel.price ? (
-											<>
-												<div style={{ fontSize: "28px", fontWeight: "bold", color: "#4CAF50", lineHeight: "1.2" }}>
-													${hotel.price.toFixed(2)}
-												</div>
-												<div style={{ fontSize: "12px", color: "rgba(255, 255, 255, 0.8)", marginTop: "4px" }}>
-													${pricePerNight}/night
-												</div>
-												<div style={{ fontSize: "11px", color: "rgba(255, 255, 255, 0.6)", marginTop: "2px" }}>
-													{nights} night{nights !== 1 ? 's' : ''} • {occupants} guest{occupants !== 1 ? 's' : ''}
-												</div>
-											</>
-										) : (
-											<div style={{ fontSize: "14px", color: "rgba(255, 255, 255, 0.6)", fontStyle: "italic" }}>
-												Price not available
-											</div>
-										)}
-									</div>
-								</div>
-								<div style={{ display: "flex", gap: "8px", marginTop: "8px", flexWrap: "wrap" }}>
-									{hotel.url && (
-										<a
-											href={hotel.url}
-											target="_blank"
-											rel="noopener noreferrer"
-											className="hotel-link"
-											style={{ 
-												padding: "8px 16px",
-												textDecoration: "none",
-												borderRadius: "4px",
-												fontSize: "14px"
-											}}
-										>
-											View on Google Maps
-										</a>
-									)}
-									<button
-										onClick={() => addToItinerary({
-											itemType: 'hotel',
-											itemId: hotel.place_id,
-											itemData: {
-												name: hotel.name,
-												vicinity: hotel.vicinity,
-												rating: hotel.rating,
-												placeId: hotel.place_id,
-												url: hotel.url,
-												price: hotel.price,
-												pricePerNight: pricePerNight,
-												checkIn: checkIn,
-												checkOut: checkOut,
-												occupants: occupants,
-												nights: nights,
-											},
-										})}
-										className="btn btn-primary"
-										style={{ flex: "1", minWidth: "150px" }}
-									>
-										Save to Itinerary
-									</button>
-								</div>
-							</div>
-							);
-						})}
+								);
+							})}
 
 							{loadingMore && (
 								<div className="loading-more">
