@@ -19,41 +19,79 @@ const HotelPage = () => {
 	const [allHotels, setAllHotels] = useState([]); // Store all hotels for client-side pagination
 	const hotelsPerPage = 10;
 
-	// Set default dates (today and tomorrow)
+	// Read URL parameters and set defaults - check URL params first, then defaults
 	useEffect(() => {
-		try {
-			const today = new Date();
-			const tomorrow = new Date(today);
-			tomorrow.setDate(tomorrow.getDate() + 1);
+		const searchParams = new URLSearchParams(window.location.search);
+		const queriedCity = searchParams.get("city");
+		const queriedCheckIn = searchParams.get("checkIn");
+		const queriedCheckOut = searchParams.get("checkOut");
+		const queriedOccupants = searchParams.get("occupants");
 
+		// Set city if provided in URL
+		if (queriedCity) {
+			setCity(queriedCity);
+		}
+
+		// Set dates from URL if provided, otherwise use defaults
+		if (queriedCheckIn) {
+			setCheckIn(queriedCheckIn);
+		} else {
+			// Set default check-in (today) only if not in URL
+			const today = new Date();
 			const formatDate = (date) => {
-				if (!date || isNaN(date.getTime())) {
-					// Fallback if date is invalid
-					const fallback = new Date();
-					const year = fallback.getFullYear();
-					const month = String(fallback.getMonth() + 1).padStart(2, '0');
-					const day = String(fallback.getDate()).padStart(2, '0');
-					return `${year}-${month}-${day}`;
-				}
 				const year = date.getFullYear();
 				const month = String(date.getMonth() + 1).padStart(2, '0');
 				const day = String(date.getDate()).padStart(2, '0');
 				return `${year}-${month}-${day}`;
 			};
-
 			if (!checkIn) {
 				setCheckIn(formatDate(today));
 			}
+		}
+
+		if (queriedCheckOut) {
+			setCheckOut(queriedCheckOut);
+		} else {
+			// Set default check-out (tomorrow) only if not in URL
+			const today = new Date();
+			const tomorrow = new Date(today);
+			tomorrow.setDate(tomorrow.getDate() + 1);
+			const formatDate = (date) => {
+				const year = date.getFullYear();
+				const month = String(date.getMonth() + 1).padStart(2, '0');
+				const day = String(date.getDate()).padStart(2, '0');
+				return `${year}-${month}-${day}`;
+			};
 			if (!checkOut) {
 				setCheckOut(formatDate(tomorrow));
 			}
-		} catch (err) {
-			console.error("Error setting default dates:", err);
-			// Set fallback dates
-			const today = new Date().toISOString().split('T')[0];
-			const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
-			if (!checkIn) setCheckIn(today);
-			if (!checkOut) setCheckOut(tomorrow);
+		}
+
+		// Set occupants from URL if provided
+		if (queriedOccupants) {
+			const numOccupants = parseInt(queriedOccupants, 10);
+			if (!isNaN(numOccupants) && numOccupants >= 1 && numOccupants <= 10) {
+				setOccupants(numOccupants);
+			}
+		}
+
+		// Auto-fetch hotels when city is passed via URL
+		// Use dates from URL directly
+		if (queriedCity && queriedCheckIn && queriedCheckOut) {
+			setTimeout(() => {
+				// Pass dates directly from URL params
+				const datesToUse = {
+					checkIn: queriedCheckIn,
+					checkOut: queriedCheckOut,
+					occupants: queriedOccupants ? parseInt(queriedOccupants, 10) : 2
+				};
+				fetchHotelsForCity(queriedCity, datesToUse);
+			}, 300); // Wait for state updates to complete
+		} else if (queriedCity) {
+			// City provided but dates missing - wait a bit longer for default dates to be set
+			setTimeout(() => {
+				fetchHotelsForCity(queriedCity);
+			}, 500);
 		}
 	}, []);
 
@@ -157,28 +195,20 @@ const HotelPage = () => {
 		}
 	};
 
-	// Fix URL parsing to use search params correctly
-	useEffect(() => {
-		const searchParams = new URLSearchParams(window.location.search);
-		const queriedCity = searchParams.get("city");
-		if (queriedCity) {
-			setCity(queriedCity);
-			// Auto-fetch hotels when city is passed via URL
-			setTimeout(() => {
-				// Use the queriedCity directly instead of relying on state
-				fetchHotelsForCity(queriedCity);
-			}, 100);
-		}
-	}, []);
 
 	// Separate function for fetching hotels with a specific city
-	const fetchHotelsForCity = async (cityName) => {
+	const fetchHotelsForCity = async (cityName, overrideDates = null) => {
 		if (!cityName.trim()) {
 			setError("Please enter a city name");
 			return;
 		}
 
-		if (!checkIn || !checkOut) {
+		// Use override dates if provided, otherwise use state
+		const checkInToUse = overrideDates?.checkIn || checkIn;
+		const checkOutToUse = overrideDates?.checkOut || checkOut;
+		const occupantsToUse = overrideDates?.occupants || occupants;
+
+		if (!checkInToUse || !checkOutToUse) {
 			setError("Please select check-in and check-out dates");
 			return;
 		}
@@ -188,12 +218,12 @@ const HotelPage = () => {
 		setCurrentPage(1); // Reset to first page on new search
 
 		try {
-			const numOccupants = Math.max(1, Math.min(10, parseInt(occupants, 10) || 2));
+			const numOccupants = Math.max(1, Math.min(10, parseInt(occupantsToUse, 10) || 2));
 
 			const params = new URLSearchParams({
 				city: cityName.trim(),
-				checkIn: checkIn,
-				checkOut: checkOut,
+				checkIn: checkInToUse,
+				checkOut: checkOutToUse,
 				occupants: numOccupants.toString(),
 			});
 
