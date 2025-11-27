@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import NavBar from "../Components/Navbar";
 import Footer from "../Components/Footer";
@@ -14,7 +14,7 @@ const HotelPage = () => {
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState("");
 	const [hasSearched, setHasSearched] = useState(false);
-	const [sortBy, setSortBy] = useState("popularity"); // popularity, priceLow, priceHigh, rating
+	const [sortBy, setSortBy] = useState("priceLow"); // priceLow, priceHigh
 	const [currentPage, setCurrentPage] = useState(1);
 	const [allHotels, setAllHotels] = useState([]); // Store all hotels for client-side pagination
 	const hotelsPerPage = 10;
@@ -240,44 +240,49 @@ const HotelPage = () => {
 		}
 	};
 
-	// Sort hotels based on selected option
-	const sortHotels = (hotelsList, sortOption) => {
-		const sorted = [...hotelsList];
-		switch (sortOption) {
-			case "priceLow":
-				return sorted.sort((a, b) => {
-					const priceA = a.pricePerNight || Infinity;
-					const priceB = b.pricePerNight || Infinity;
-					return priceA - priceB;
-				});
-			case "priceHigh":
-				return sorted.sort((a, b) => {
-					const priceA = a.pricePerNight || 0;
-					const priceB = b.pricePerNight || 0;
-					return priceB - priceA;
-				});
-			case "rating":
-				return sorted.sort((a, b) => {
-					const ratingA = a.rating || 0;
-					const ratingB = b.rating || 0;
-					return ratingB - ratingA;
-				});
-			case "popularity":
-			default:
-				// Keep original order (already sorted by popularity from API)
-				return sorted;
+	// Get paginated and sorted hotels - memoized to recalculate when dependencies change
+	const displayedHotels = useMemo(() => {
+		if (!allHotels || allHotels.length === 0) {
+			return [];
 		}
-	};
 
-	// Get paginated and sorted hotels
-	const getDisplayedHotels = () => {
-		const sorted = sortHotels(allHotels, sortBy);
+		// Helper to get price as number, or Infinity if no price
+		const getPrice = (hotel) => {
+			const price = hotel.pricePerNight;
+			// Only treat null, undefined, or invalid numbers as "no price"
+			if (price === null || price === undefined) {
+				return Infinity; // Hotels without prices go to the end
+			}
+			const numPrice = parseFloat(price);
+			if (isNaN(numPrice) || numPrice < 0) {
+				return Infinity; // Invalid or negative prices treated as no price
+			}
+			return numPrice;
+		};
+
+		// Sort hotels based on selected option
+		const sorted = [...allHotels].sort((a, b) => {
+			const priceA = getPrice(a);
+			const priceB = getPrice(b);
+
+			if (sortBy === "priceHigh") {
+				// For high to low, reverse the order, but still put Infinity (no price) at end
+				if (priceA === Infinity && priceB === Infinity) return 0;
+				if (priceA === Infinity) return 1; // a goes to end
+				if (priceB === Infinity) return -1; // b goes to end
+				return priceB - priceA; // Normal descending order
+			} else {
+				// Default: priceLow - ascending order
+				return priceA - priceB;
+			}
+		});
+
+		// Paginate
 		const startIndex = (currentPage - 1) * hotelsPerPage;
 		const endIndex = startIndex + hotelsPerPage;
 		return sorted.slice(startIndex, endIndex);
-	};
+	}, [allHotels, sortBy, currentPage, hotelsPerPage]);
 
-	const displayedHotels = getDisplayedHotels();
 	const totalPages = Math.ceil(allHotels.length / hotelsPerPage);
 	const hasMore = currentPage < totalPages;
 
@@ -287,10 +292,6 @@ const HotelPage = () => {
 		}
 	};
 
-	const handleSortChange = (newSort) => {
-		setSortBy(newSort);
-		setCurrentPage(1); // Reset to first page when sorting changes
-	};
 
 	return (
 		<div className="homepage">
@@ -444,68 +445,6 @@ const HotelPage = () => {
 						</div>
 
 						<div className="results-column">
-							{/* Sort Options */}
-							{allHotels.length > 0 && hasSearched && (
-								<div style={{
-									marginBottom: "20px",
-									padding: "16px",
-									backgroundColor: "rgba(255, 255, 255, 0.05)",
-									borderRadius: "12px",
-									display: "flex",
-									alignItems: "center",
-									gap: "16px",
-									flexWrap: "wrap"
-								}}>
-									<label style={{
-										color: "rgba(255, 255, 255, 0.9)",
-										fontSize: "14px",
-										fontWeight: "600"
-									}}>
-										Sort by:
-									</label>
-									<div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-										{["popularity", "priceLow", "priceHigh", "rating"].map((option) => (
-											<button
-												key={option}
-												onClick={() => handleSortChange(option)}
-												style={{
-													padding: "8px 16px",
-													borderRadius: "6px",
-													border: "none",
-													backgroundColor: sortBy === option ? "#667eea" : "rgba(255, 255, 255, 0.1)",
-													color: "white",
-													fontSize: "13px",
-													fontWeight: sortBy === option ? "600" : "400",
-													cursor: "pointer",
-													transition: "all 0.2s ease"
-												}}
-												onMouseEnter={(e) => {
-													if (sortBy !== option) {
-														e.target.style.backgroundColor = "rgba(255, 255, 255, 0.2)";
-													}
-												}}
-												onMouseLeave={(e) => {
-													if (sortBy !== option) {
-														e.target.style.backgroundColor = "rgba(255, 255, 255, 0.1)";
-													}
-												}}
-											>
-												{option === "popularity" && "⭐ Popularity"}
-												{option === "priceLow" && "💰 Price: Low to High"}
-												{option === "priceHigh" && "💰 Price: High to Low"}
-												{option === "rating" && "⭐ Rating"}
-											</button>
-										))}
-									</div>
-									<div style={{
-										marginLeft: "auto",
-										color: "rgba(255, 255, 255, 0.7)",
-										fontSize: "13px"
-									}}>
-										Showing {Math.min(currentPage * hotelsPerPage, allHotels.length)} of {allHotels.length} hotels
-									</div>
-								</div>
-							)}
 
 							{allHotels.length === 0 && !loading && hasSearched && (
 								<p className="no-results">
