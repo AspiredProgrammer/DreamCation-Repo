@@ -11,12 +11,13 @@ const HotelPage = () => {
 	const [occupants, setOccupants] = useState(2);
 	const [checkIn, setCheckIn] = useState("");
 	const [checkOut, setCheckOut] = useState("");
-	const [hotels, setHotels] = useState([]);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState("");
-	const [pagination, setPagination] = useState(null);
-	const [loadingMore, setLoadingMore] = useState(false);
 	const [hasSearched, setHasSearched] = useState(false);
+	const [sortBy, setSortBy] = useState("popularity"); // popularity, priceLow, priceHigh, rating
+	const [currentPage, setCurrentPage] = useState(1);
+	const [allHotels, setAllHotels] = useState([]); // Store all hotels for client-side pagination
+	const hotelsPerPage = 10;
 
 	// Set default dates (today and tomorrow)
 	useEffect(() => {
@@ -65,7 +66,7 @@ const HotelPage = () => {
 		return diffDays > 0 ? diffDays : 1;
 	};
 
-	const fetchHotelsByCity = async (page = 1) => {
+	const fetchHotelsByCity = async () => {
 		if (!city.trim()) {
 			setError("Please enter a city name");
 			return;
@@ -88,23 +89,22 @@ const HotelPage = () => {
 			return;
 		}
 
-		const isFirstPage = page === 1;
-		if (isFirstPage) {
-			setLoading(true);
-			setHasSearched(true);
-		} else {
-			setLoadingMore(true);
-		}
+		setLoading(true);
 		setError("");
-
-		const nights = calculateNights();
+		setCurrentPage(1); // Reset to first page on new search
 
 		try {
-			const response = await fetch(
-				`/api/hotels?city=${encodeURIComponent(
-					city.trim()
-				)}&occupants=${occupants}&checkIn=${checkIn}&checkOut=${checkOut}&nights=${nights}&page=${page}&limit=10`
-			);
+			const numOccupants = Math.max(1, Math.min(10, parseInt(occupants, 10) || 2));
+			const cityName = city.trim();
+
+			const params = new URLSearchParams({
+				city: cityName,
+				checkIn: checkIn,
+				checkOut: checkOut,
+				occupants: numOccupants.toString(),
+			});
+
+			const response = await fetch(`/api/hotels?${params.toString()}`);
 
 			// Check if response is JSON before parsing
 			const contentType = response.headers.get("content-type");
@@ -128,35 +128,26 @@ const HotelPage = () => {
 				}
 			}
 
-			// Handle both new pagination format and old format for backward compatibility
-			const hotels = Array.isArray(data.hotels)
+			// Get all hotels from response
+			const allHotelsData = Array.isArray(data.hotels)
 				? data.hotels
 				: Array.isArray(data)
 					? data
 					: [];
-			const paginationInfo = data.pagination || null;
 
-			if (isFirstPage) {
-				setHotels(hotels);
-				setPagination(paginationInfo);
-			} else {
-				setHotels((prevHotels) => [...prevHotels, ...hotels]);
-				setPagination(paginationInfo);
-			}
+			// Store all hotels for client-side pagination and sorting
+			setAllHotels(allHotelsData);
 
-			if (hotels.length === 0 && isFirstPage) {
+			if (allHotelsData.length === 0) {
 				setError("No hotels found for this city");
 			}
 		} catch (err) {
 			console.error("Error:", err);
 			setError(err.message || "Failed to fetch hotels. Please try again.");
-			if (isFirstPage) {
-				setHotels([]);
-				setPagination(null);
-			}
+			setAllHotels([]);
 		} finally {
 			setLoading(false);
-			setLoadingMore(false);
+			setHasSearched(true);
 		}
 	};
 
@@ -192,22 +183,35 @@ const HotelPage = () => {
 			return;
 		}
 
-		const nights = calculateNights();
-
 		setLoading(true);
 		setError("");
-		setHasSearched(true);
-		try {
-			const response = await fetch(
-				`/api/hotels?city=${encodeURIComponent(
-					cityName.trim()
-				)}&occupants=${occupants}&checkIn=${checkIn}&checkOut=${checkOut}&nights=${nights}&page=1&limit=10`
-			);
+		setCurrentPage(1); // Reset to first page on new search
 
-			const data = await response.json();
+		try {
+			const numOccupants = Math.max(1, Math.min(10, parseInt(occupants, 10) || 2));
+
+			const params = new URLSearchParams({
+				city: cityName.trim(),
+				checkIn: checkIn,
+				checkOut: checkOut,
+				occupants: numOccupants.toString(),
+			});
+
+			const response = await fetch(`/api/hotels?${params.toString()}`);
+
+			// Check if response is JSON before parsing
+			const contentType = response.headers.get("content-type");
+			let data;
+
+			if (contentType && contentType.includes("application/json")) {
+				data = await response.json();
+			} else {
+				const text = await response.text();
+				console.error("Non-JSON response:", text);
+				throw new Error("Server returned an error. Please check the console for details.");
+			}
 
 			if (!response.ok) {
-				// Handle API error responses
 				if (data.error && data.message) {
 					throw new Error(data.message);
 				} else {
@@ -215,37 +219,87 @@ const HotelPage = () => {
 				}
 			}
 
-			// Handle both new pagination format and old format for backward compatibility
-			const hotels = Array.isArray(data.hotels)
+			// Get all hotels from response
+			const allHotelsData = Array.isArray(data.hotels)
 				? data.hotels
 				: Array.isArray(data)
 					? data
 					: [];
-			const paginationInfo = data.pagination || null;
 
-			setHotels(hotels);
-			setPagination(paginationInfo);
-			if (hotels.length === 0) {
+			setAllHotels(allHotelsData);
+			if (allHotelsData.length === 0) {
 				setError("No hotels found for this city");
 			}
 		} catch (err) {
 			console.error("Error:", err);
 			setError(err.message || "Failed to fetch hotels. Please try again.");
-			setHotels([]);
-			setPagination(null);
+			setAllHotels([]);
 		} finally {
 			setLoading(false);
+			setHasSearched(true);
 		}
 	};
 
-	const handleLoadMore = () => {
-		if (pagination && pagination.hasMore) {
-			fetchHotelsByCity(pagination.currentPage + 1);
+	// Sort hotels based on selected option
+	const sortHotels = (hotelsList, sortOption) => {
+		const sorted = [...hotelsList];
+		switch (sortOption) {
+			case "priceLow":
+				return sorted.sort((a, b) => {
+					const priceA = a.pricePerNight || Infinity;
+					const priceB = b.pricePerNight || Infinity;
+					return priceA - priceB;
+				});
+			case "priceHigh":
+				return sorted.sort((a, b) => {
+					const priceA = a.pricePerNight || 0;
+					const priceB = b.pricePerNight || 0;
+					return priceB - priceA;
+				});
+			case "rating":
+				return sorted.sort((a, b) => {
+					const ratingA = a.rating || 0;
+					const ratingB = b.rating || 0;
+					return ratingB - ratingA;
+				});
+			case "popularity":
+			default:
+				// Keep original order (already sorted by popularity from API)
+				return sorted;
 		}
+	};
+
+	// Get paginated and sorted hotels
+	const getDisplayedHotels = () => {
+		const sorted = sortHotels(allHotels, sortBy);
+		const startIndex = (currentPage - 1) * hotelsPerPage;
+		const endIndex = startIndex + hotelsPerPage;
+		return sorted.slice(startIndex, endIndex);
+	};
+
+	const displayedHotels = getDisplayedHotels();
+	const totalPages = Math.ceil(allHotels.length / hotelsPerPage);
+	const hasMore = currentPage < totalPages;
+
+	const handleLoadMore = () => {
+		if (hasMore) {
+			setCurrentPage(prev => prev + 1);
+		}
+	};
+
+	const handleSortChange = (newSort) => {
+		setSortBy(newSort);
+		setCurrentPage(1); // Reset to first page when sorting changes
 	};
 
 	return (
 		<div className="homepage">
+			<style>{`
+				@keyframes spin {
+					0% { transform: rotate(0deg); }
+					100% { transform: rotate(360deg); }
+				}
+			`}</style>
 			<NavBar />
 			<section className="main-box hotels-page">
 				<div className="content">
@@ -269,6 +323,7 @@ const HotelPage = () => {
 										onChange={(e) => setCity(e.target.value)}
 										placeholder="e.g., New York, London, Tokyo"
 										onKeyDown={handleKeyDown}
+										disabled={loading}
 										required
 									/>
 								</div>
@@ -290,6 +345,7 @@ const HotelPage = () => {
 												setOccupants(1);
 											}
 										}}
+										disabled={loading}
 										required
 										autoComplete="off"
 									/>
@@ -313,6 +369,7 @@ const HotelPage = () => {
 											}
 										}}
 										min={new Date().toISOString().split('T')[0]}
+										disabled={loading}
 										required
 										autoComplete="off"
 									/>
@@ -350,13 +407,36 @@ const HotelPage = () => {
 												return new Date().toISOString().split('T')[0];
 											}
 										})() : new Date().toISOString().split('T')[0]}
+										disabled={loading}
 										required
 										autoComplete="off"
 									/>
 								</div>
 
-								<button type="submit" className="search-button" disabled={loading}>
-									{loading ? "Searching..." : "🔍 Search Hotels"}
+								<button
+									type="submit"
+									className="search-button"
+									disabled={loading}
+									style={{
+										position: "relative",
+										opacity: loading ? 0.7 : 1,
+										cursor: loading ? "not-allowed" : "pointer"
+									}}
+								>
+									{loading && (
+										<span style={{
+											display: "inline-block",
+											width: "16px",
+											height: "16px",
+											border: "2px solid rgba(255, 255, 255, 0.3)",
+											borderTop: "2px solid white",
+											borderRadius: "50%",
+											animation: "spin 0.8s linear infinite",
+											marginRight: "8px",
+											verticalAlign: "middle"
+										}}></span>
+									)}
+									{loading ? "Searching Hotels..." : "🔍 Search Hotels"}
 								</button>
 
 								{error && <p className="error-text">{error}</p>}
@@ -364,13 +444,114 @@ const HotelPage = () => {
 						</div>
 
 						<div className="results-column">
-							{hotels.length === 0 && !loading && hasSearched && (
+							{/* Sort Options */}
+							{allHotels.length > 0 && hasSearched && (
+								<div style={{
+									marginBottom: "20px",
+									padding: "16px",
+									backgroundColor: "rgba(255, 255, 255, 0.05)",
+									borderRadius: "12px",
+									display: "flex",
+									alignItems: "center",
+									gap: "16px",
+									flexWrap: "wrap"
+								}}>
+									<label style={{
+										color: "rgba(255, 255, 255, 0.9)",
+										fontSize: "14px",
+										fontWeight: "600"
+									}}>
+										Sort by:
+									</label>
+									<div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+										{["popularity", "priceLow", "priceHigh", "rating"].map((option) => (
+											<button
+												key={option}
+												onClick={() => handleSortChange(option)}
+												style={{
+													padding: "8px 16px",
+													borderRadius: "6px",
+													border: "none",
+													backgroundColor: sortBy === option ? "#667eea" : "rgba(255, 255, 255, 0.1)",
+													color: "white",
+													fontSize: "13px",
+													fontWeight: sortBy === option ? "600" : "400",
+													cursor: "pointer",
+													transition: "all 0.2s ease"
+												}}
+												onMouseEnter={(e) => {
+													if (sortBy !== option) {
+														e.target.style.backgroundColor = "rgba(255, 255, 255, 0.2)";
+													}
+												}}
+												onMouseLeave={(e) => {
+													if (sortBy !== option) {
+														e.target.style.backgroundColor = "rgba(255, 255, 255, 0.1)";
+													}
+												}}
+											>
+												{option === "popularity" && "⭐ Popularity"}
+												{option === "priceLow" && "💰 Price: Low to High"}
+												{option === "priceHigh" && "💰 Price: High to Low"}
+												{option === "rating" && "⭐ Rating"}
+											</button>
+										))}
+									</div>
+									<div style={{
+										marginLeft: "auto",
+										color: "rgba(255, 255, 255, 0.7)",
+										fontSize: "13px"
+									}}>
+										Showing {Math.min(currentPage * hotelsPerPage, allHotels.length)} of {allHotels.length} hotels
+									</div>
+								</div>
+							)}
+
+							{allHotels.length === 0 && !loading && hasSearched && (
 								<p className="no-results">
 									No hotels found for "{city}". Try searching for a different city.
 								</p>
 							)}
 
-							{hotels.map((hotel) => {
+							{loading && (
+								<div style={{
+									display: "flex",
+									flexDirection: "column",
+									alignItems: "center",
+									justifyContent: "center",
+									padding: "60px 20px",
+									backgroundColor: "rgba(255, 255, 255, 0.95)",
+									borderRadius: "16px",
+									marginBottom: "20px"
+								}}>
+									<div style={{
+										width: "50px",
+										height: "50px",
+										border: "5px solid #f3f3f3",
+										borderTop: "5px solid #667eea",
+										borderRadius: "50%",
+										animation: "spin 1s linear infinite",
+										marginBottom: "20px"
+									}}></div>
+									<p style={{
+										fontSize: "18px",
+										fontWeight: "600",
+										color: "#1a1a1a",
+										margin: "0 0 8px 0"
+									}}>
+										Searching for hotels...
+									</p>
+									<p style={{
+										fontSize: "14px",
+										color: "#666",
+										margin: "0"
+									}}>
+										This may take a few seconds
+									</p>
+								</div>
+							)}
+
+							{displayedHotels.map((hotel) => {
 								// Always use backend's nights value - it's calculated from checkIn/checkOut dates
 								const nights = hotel.nights || calculateNights();
 								// Backend sends pricePerNight - multiply by nights to get total
@@ -380,22 +561,81 @@ const HotelPage = () => {
 									? parseFloat((pricePerNight * nights).toFixed(2))
 									: null;
 
+								// Remove leading numbers and punctuation from hotel name
+								// Handles cases like "1. Hotel Name" or "#1 Hotel Name" or "1 - Hotel Name"
+								const cleanHotelName = hotel.name ? hotel.name.replace(/^[\d#\.\-\s]+/, '').trim() : hotel.name;
+
 								return (
-									<div key={hotel.place_id} className="flight-card" style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-										<div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "16px" }}>
+									<div
+										key={hotel.place_id}
+										style={{
+											backgroundColor: "rgba(255, 255, 255, 0.95)",
+											borderRadius: "16px",
+											padding: "20px",
+											marginBottom: "20px",
+											boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+											transition: "transform 0.2s ease, box-shadow 0.2s ease",
+											display: "flex",
+											flexDirection: "column",
+											gap: "16px"
+										}}
+										onMouseEnter={(e) => {
+											e.currentTarget.style.transform = "translateY(-2px)";
+											e.currentTarget.style.boxShadow = "0 6px 20px rgba(0, 0, 0, 0.2)";
+										}}
+										onMouseLeave={(e) => {
+											e.currentTarget.style.transform = "translateY(0)";
+											e.currentTarget.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.15)";
+										}}
+									>
+										<div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "20px" }}>
 											<div style={{ flex: 1 }}>
-												<div className="flight-title" style={{ marginBottom: "4px" }}>{hotel.name}</div>
-												<p className="flight-meta" style={{ marginBottom: "8px" }}>{hotel.vicinity}</p>
-												<div style={{ display: "flex", flexWrap: "wrap", gap: "8px", alignItems: "center" }}>
+												<h3 style={{
+													margin: "0 0 8px 0",
+													fontSize: "20px",
+													fontWeight: "700",
+													color: "#1a1a1a",
+													lineHeight: "1.3"
+												}}>
+													{cleanHotelName}
+												</h3>
+												<p style={{
+													margin: "0 0 12px 0",
+													color: "#666",
+													fontSize: "14px"
+												}}>
+													📍 {hotel.vicinity}
+												</p>
+												<div style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "center" }}>
 													{hotel.rating && (
-														<span className="hotel-rating" style={{ fontSize: "14px" }}>
+														<div style={{
+															display: "inline-flex",
+															alignItems: "center",
+															gap: "4px",
+															padding: "4px 12px",
+															backgroundColor: "#fff3cd",
+															borderRadius: "20px",
+															fontSize: "13px",
+															fontWeight: "600",
+															color: "#856404"
+														}}>
 															⭐ {hotel.rating.toFixed(1)}
-														</span>
+														</div>
 													)}
 													{hotel.price_level && (
-														<span className="hotel-price-level" style={{ fontSize: "14px" }}>
+														<div style={{
+															display: "inline-flex",
+															alignItems: "center",
+															gap: "4px",
+															padding: "4px 12px",
+															backgroundColor: "#d4edda",
+															borderRadius: "20px",
+															fontSize: "13px",
+															fontWeight: "600",
+															color: "#155724"
+														}}>
 															{"💰".repeat(hotel.price_level)}
-														</span>
+														</div>
 													)}
 												</div>
 											</div>
@@ -403,32 +643,32 @@ const HotelPage = () => {
 											{/* Price Display - Prominently shown on the right */}
 											<div style={{
 												textAlign: "right",
-												minWidth: "120px",
-												padding: "8px 12px",
-												backgroundColor: "rgba(76, 175, 80, 0.1)",
-												borderRadius: "8px",
-												border: "1px solid rgba(76, 175, 80, 0.3)"
+												minWidth: "140px",
+												padding: "16px 20px",
+												backgroundColor: "#4CAF50",
+												borderRadius: "12px",
+												boxShadow: "0 2px 8px rgba(76, 175, 80, 0.3)"
 											}}>
 												{totalPrice ? (
 													<>
-														<div style={{ fontSize: "28px", fontWeight: "bold", color: "#4CAF50", lineHeight: "1.2" }}>
+														<div style={{ fontSize: "32px", fontWeight: "bold", color: "white", lineHeight: "1.2" }}>
 															${totalPrice.toFixed(2)}
 														</div>
-														<div style={{ fontSize: "12px", color: "rgba(255, 255, 255, 0.8)", marginTop: "4px" }}>
+														<div style={{ fontSize: "13px", color: "rgba(255, 255, 255, 0.95)", marginTop: "6px", fontWeight: "500" }}>
 															${pricePerNight ? pricePerNight.toFixed(2) : 'N/A'}/night
 														</div>
-														<div style={{ fontSize: "11px", color: "rgba(255, 255, 255, 0.6)", marginTop: "2px" }}>
+														<div style={{ fontSize: "11px", color: "rgba(255, 255, 255, 0.85)", marginTop: "4px" }}>
 															{nights} night{nights !== 1 ? 's' : ''} • {occupants} guest{occupants !== 1 ? 's' : ''}
 														</div>
 													</>
 												) : (
-													<div style={{ fontSize: "14px", color: "rgba(255, 255, 255, 0.6)", fontStyle: "italic" }}>
+													<div style={{ fontSize: "14px", color: "rgba(255, 255, 255, 0.8)", fontStyle: "italic" }}>
 														Price not available
 													</div>
 												)}
 											</div>
 										</div>
-										<div style={{ display: "flex", gap: "8px", marginTop: "8px", flexWrap: "wrap" }}>
+										<div style={{ display: "flex", gap: "12px", marginTop: "4px", flexWrap: "wrap" }}>
 											{hotel.url && (() => {
 												// Ensure the booking URL includes the correct dates
 												let bookingUrl = hotel.url;
@@ -444,7 +684,7 @@ const HotelPage = () => {
 															const day = String(date.getDate()).padStart(2, '0');
 															return `${year}-${month}-${day}`;
 														};
-														
+
 														// TripAdvisor URLs use specific date format in query params
 														const urlObj = new URL(bookingUrl);
 														// Update date parameters - TripAdvisor uses inDay, outDay, inMonth, outMonth, inYear, outYear
@@ -461,19 +701,19 @@ const HotelPage = () => {
 														console.warn('Failed to update booking URL dates:', e);
 													}
 												}
-												
+
 												return (
 													<a
 														href={bookingUrl}
 														target="_blank"
 														rel="noopener noreferrer"
 														style={{
-															padding: "12px 24px",
+															padding: "14px 28px",
 															textDecoration: "none",
-															borderRadius: "6px",
+															borderRadius: "8px",
 															fontSize: "15px",
 															fontWeight: "600",
-															backgroundColor: "#4CAF50",
+															backgroundColor: "#667eea",
 															color: "white",
 															display: "inline-flex",
 															alignItems: "center",
@@ -482,17 +722,17 @@ const HotelPage = () => {
 															flex: "1",
 															minWidth: "200px",
 															justifyContent: "center",
-															boxShadow: "0 2px 8px rgba(76, 175, 80, 0.3)"
+															boxShadow: "0 2px 8px rgba(102, 126, 234, 0.3)"
 														}}
 														onMouseEnter={(e) => {
-															e.target.style.backgroundColor = "#45a049";
+															e.target.style.backgroundColor = "#5568d3";
 															e.target.style.transform = "translateY(-1px)";
-															e.target.style.boxShadow = "0 4px 12px rgba(76, 175, 80, 0.4)";
+															e.target.style.boxShadow = "0 4px 12px rgba(102, 126, 234, 0.4)";
 														}}
 														onMouseLeave={(e) => {
-															e.target.style.backgroundColor = "#4CAF50";
+															e.target.style.backgroundColor = "#667eea";
 															e.target.style.transform = "translateY(0)";
-															e.target.style.boxShadow = "0 2px 8px rgba(76, 175, 80, 0.3)";
+															e.target.style.boxShadow = "0 2px 8px rgba(102, 126, 234, 0.3)";
 														}}
 													>
 														🔗 View Hotel Site & Book
@@ -500,7 +740,7 @@ const HotelPage = () => {
 												);
 											})()}
 											{!hotel.url && (
-												<div style={{ 
+												<div style={{
 													padding: "12px 24px",
 													borderRadius: "6px",
 													fontSize: "14px",
@@ -531,32 +771,67 @@ const HotelPage = () => {
 														nights: nights,
 													},
 												})}
-												className="btn btn-primary"
-												style={{ flex: "1", minWidth: "150px" }}
+												style={{
+													flex: "1",
+													minWidth: "150px",
+													padding: "14px 28px",
+													borderRadius: "8px",
+													border: "none",
+													backgroundColor: "#f59e0b",
+													color: "white",
+													fontSize: "15px",
+													fontWeight: "600",
+													cursor: "pointer",
+													transition: "all 0.2s ease",
+													boxShadow: "0 2px 8px rgba(245, 158, 11, 0.3)"
+												}}
+												onMouseEnter={(e) => {
+													e.target.style.backgroundColor = "#d97706";
+													e.target.style.transform = "translateY(-1px)";
+													e.target.style.boxShadow = "0 4px 12px rgba(245, 158, 11, 0.4)";
+												}}
+												onMouseLeave={(e) => {
+													e.target.style.backgroundColor = "#f59e0b";
+													e.target.style.transform = "translateY(0)";
+													e.target.style.boxShadow = "0 2px 8px rgba(245, 158, 11, 0.3)";
+												}}
 											>
-												Save to Itinerary
+												💾 Save to Itinerary
 											</button>
 										</div>
 									</div>
 								);
 							})}
 
-							{loadingMore && (
-								<div className="loading-more">
-									<div className="loading-spinner"></div>
-									<p style={{ margin: "8px 0 0 0", color: "rgba(255, 255, 255, 0.8)", fontSize: "0.9rem" }}>
-										Loading more hotels...
-									</p>
-								</div>
-							)}
-
-							{pagination && pagination.hasMore && !loadingMore && (
+							{hasMore && !loading && (
 								<button
 									onClick={handleLoadMore}
-									className="search-button"
-									style={{ marginTop: "12px" }}
+									style={{
+										marginTop: "20px",
+										padding: "14px 32px",
+										borderRadius: "8px",
+										border: "none",
+										backgroundColor: "#667eea",
+										color: "white",
+										fontSize: "16px",
+										fontWeight: "600",
+										cursor: "pointer",
+										transition: "all 0.2s ease",
+										boxShadow: "0 2px 8px rgba(102, 126, 234, 0.3)",
+										width: "100%"
+									}}
+									onMouseEnter={(e) => {
+										e.target.style.backgroundColor = "#5568d3";
+										e.target.style.transform = "translateY(-1px)";
+										e.target.style.boxShadow = "0 4px 12px rgba(102, 126, 234, 0.4)";
+									}}
+									onMouseLeave={(e) => {
+										e.target.style.backgroundColor = "#667eea";
+										e.target.style.transform = "translateY(0)";
+										e.target.style.boxShadow = "0 2px 8px rgba(102, 126, 234, 0.3)";
+									}}
 								>
-									Show More Hotels
+									Load More Hotels ({allHotels.length - (currentPage * hotelsPerPage)} remaining)
 								</button>
 							)}
 						</div>

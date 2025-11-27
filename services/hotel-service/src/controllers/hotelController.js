@@ -170,15 +170,9 @@ exports.getHotelsByCity = async (req, res, next) => {
 		const checkOutDate = new Date(checkOut);
 		const numNights = Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24)) || 1;
 
-		// Apply pagination early to avoid processing unnecessary hotels
-		const pageNum = parseInt(page, 10);
-		const limitNum = parseInt(limit, 10);
-		const startIndex = (pageNum - 1) * limitNum;
-		const endIndex = startIndex + limitNum;
-		const paginatedProperties = properties.slice(startIndex, endIndex);
-
-		// Process only the hotels we need for this page
-		for (const property of paginatedProperties) {
+		// Process ALL hotels at once - send everything to frontend for client-side pagination
+		// This eliminates the need for multiple slow API calls
+		for (const property of properties) {
 			const hotel = property || {};
 
 			// Extract price information from TripAdvisor format
@@ -278,21 +272,12 @@ exports.getHotelsByCity = async (req, res, next) => {
 			});
 		}
 
-		// Pagination info (already calculated above, reuse variables)
-		const totalResults = hotelsData.pagination?.totalResults ||
-			hotelsData.totalResults ||
-			properties.length;
-		const hasMore = endIndex < totalResults;
+		// Return ALL hotels - frontend will handle pagination and sorting
+		const totalResults = hotels.length;
 
 		res.json({
 			hotels: hotels,
-			pagination: {
-				currentPage: pageNum,
-				limit: limitNum,
-				totalHotels: totalResults,
-				hasMore: hasMore,
-				showing: `${Math.min(pageNum * limitNum, totalResults)} of ${totalResults}`,
-			},
+			totalHotels: totalResults,
 		});
 	} catch (error) {
 		console.error("Error in /api/hotels:", error);
