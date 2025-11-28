@@ -11,10 +11,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
 	cors({
-		origin: [
-			process.env.FRONTEND_ENDPOINT, // Production frontend
-			"http://localhost:3000", // Development frontend
-		].filter(Boolean), // Remove undefined values
+		origin: true, // Accept any origin
 		methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 		credentials: true,
 	})
