@@ -4,14 +4,17 @@ import Footer from "../Components/Footer";
 import "../Styles/MainStyles.css";
 import { useItinerary } from "../contexts/ItineraryContext";
 import planeBG from "../assets/planebg.jpg";
-import carBG from "../assets/carbg.jpeg";
 import busBG from "../assets/busbg.jpg";
 import { apiUrl } from "../config/api";
 
-
-
-function getBookingUrl(airlineCode, origin, dest, departDate, returnDate, adults = 1) {
-  // format date to DD/MM/YYYY for Air Canada
+function getBookingUrl(
+  airlineCode,
+  origin,
+  dest,
+  departDate,
+  returnDate,
+  adults = 1
+) {
   const formatDate = (d) => {
     if (!d) return "";
     const dateObj = new Date(d);
@@ -21,9 +24,8 @@ function getBookingUrl(airlineCode, origin, dest, departDate, returnDate, adults
     return `${day}%2F${month}%2F${year}`;
   };
 
-  // * Flights * //
   switch (airlineCode) {
-    case "AC": // ✈ Air Canada
+    case "AC": {
       const depart = formatDate(departDate);
       const ret = returnDate ? formatDate(returnDate) : "";
       const tripType = returnDate ? "RoundTrip" : "OneWay";
@@ -34,32 +36,23 @@ function getBookingUrl(airlineCode, origin, dest, departDate, returnDate, adults
       }&departureDate0=${depart}${
         returnDate ? `&departureDate1=${ret}` : ""
       }&adt=${adults}&yth=0&chd=0&inf=0&ins=0&marketCode=DOM&tripType=${tripType}&isFlexible=false`;
-
-    case "AA": // 🇺🇸 American Airlines
+    }
+    case "AA":
       return `https://www.aa.com/booking/find-flights?origin=${origin}&destination=${dest}&departDate=${departDate}&returnDate=${returnDate || ""}`;
-
-    case "DL": // 🛫 Delta Air Lines
+    case "DL":
       return `https://www.delta.com/flight-search/search?fromCity=${origin}&toCity=${dest}&departDate=${departDate}&returnDate=${returnDate || ""}`;
-
-    case "UA": // 🛩 United Air Lines
+    case "UA":
       return `https://www.united.com/en/us/fsr/choose-flights?f=${origin}&t=${dest}&d=${departDate}&r=${returnDate || ""}`;
-
-    case "WS": // 🇨🇦 WestJet
+    case "WS":
       return `https://www.westjet.com/shop/?adults=${adults}&children=0&infants=0&currency=CAD&lang=en-CA&origin=${origin}&destination=${dest}&outboundDate=${departDate}&returnDate=${returnDate || departDate}`;
-
-    case "AS": // 🇺🇸 Alaska Airlines
+    case "AS":
       return `https://www.alaskaair.com/planbook/shopping?from=${origin}&to=${dest}&departDate=${departDate}&returnDate=${returnDate || ""}`;
-
     default:
-      // fallback: Google Flights search
       return `https://www.google.com/travel/flights?q=Flights%20from%20${origin}%20to%20${dest}%20on%20${departDate}${
         returnDate ? `%20through%20${returnDate}` : ""
       }`;
   }
 }
-
-
-
 
 const AIRLINE_NAMES = {
   UA: "United Airlines",
@@ -86,7 +79,10 @@ function formatDateTime(s) {
 
 export default function TransportationPage() {
   const { addToItinerary } = useItinerary();
+
   const [mode, setMode] = useState("flights");
+
+  // shared form (flights)
   const [form, setForm] = useState({
     origin: "YYZ",
     dest: "LAX",
@@ -95,11 +91,25 @@ export default function TransportationPage() {
     adults: 1,
     tripType: "round",
   });
+
   const [loading, setLoading] = useState(false);
   const [offers, setOffers] = useState([]);
   const [error, setError] = useState("");
 
-  const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  // 🔸 Transit-specific state
+  const [transitForm, setTransitForm] = useState({
+    origin: "Union Station Toronto",
+    destination: "Square One",
+  });
+  const [transitLoading, setTransitLoading] = useState(false);
+  const [transitError, setTransitError] = useState("");
+  const [transitRoute, setTransitRoute] = useState(null);
+
+  const onChange = (e) =>
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+
+  const onTransitChange = (e) =>
+    setTransitForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   async function searchFlights(e) {
     e.preventDefault();
@@ -108,7 +118,9 @@ export default function TransportationPage() {
     setOffers([]);
     try {
       const res = await fetch(
-        apiUrl(`/api/flights?origin=${form.origin}&dest=${form.dest}&date=${form.date}&adults=${form.adults}`)
+        apiUrl(
+          `/api/flights?origin=${form.origin}&dest=${form.dest}&date=${form.date}&adults=${form.adults}`
+        )
       );
       if (!res.ok) throw new Error("Search failed");
       const data = await res.json();
@@ -120,337 +132,399 @@ export default function TransportationPage() {
     }
   }
 
+  // 🔸 Transit search handler
+  async function searchTransit(e) {
+    e.preventDefault();
+    setTransitLoading(true);
+    setTransitError("");
+    setTransitRoute(null);
+
+    try {
+      const params = new URLSearchParams({
+        origin: transitForm.origin,
+        destination: transitForm.destination,
+      });
+
+      const res = await fetch(
+        apiUrl(`/api/transit/bus-route?${params.toString()}`)
+      );
+      if (!res.ok) throw new Error("No route found");
+
+      const data = await res.json();
+      console.log("Transit response:", data);
+      setTransitRoute(data.route || null);
+    } catch (err) {
+      console.error("Transit search error:", err);
+      setTransitError(err.message || "Failed to fetch transit route");
+    } finally {
+      setTransitLoading(false);
+    }
+  }
+
   return (
     <div className="homepage">
       <NavBar />
       <section
-  className="main-box flights-page transition-bg"
-  style={{
-    backgroundImage:
-      mode === "flights"
-        ? `url(${planeBG})`
-        : mode === "cars"
-        ? `url(${carBG})`
-        : `url(${busBG})`,
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    backgroundRepeat: "no-repeat",
-    transition: "background-image 0.5s ease-in-out",
-  }}
->
-  <div className="content">
-    <h1 className="main-title">
-      Choose Your <span className="highlight">Transportation</span>
-    </h1>
-    <p className="subtitle">
-      Find the best way to reach your destination through flights, cars, or transit.
-    </p>
-
-    {/* Mode Tabs */}
-    <div className="mode-tabs">
-      <button
-        className={mode === "flights" ? "active" : ""}
-        onClick={() => setMode("flights")}
+        className="main-box flights-page transition-bg"
+        style={{
+          backgroundImage:
+            mode === "flights" ? `url(${planeBG})` : `url(${busBG})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          transition: "background-image 0.5s ease-in-out",
+        }}
       >
-        Flights
-      </button>
-      <button
-        className={mode === "cars" ? "active" : ""}
-        onClick={() => setMode("cars")}
-      >
-        Car Rentals
-      </button>
-      <button
-        className={mode === "transit" ? "active" : ""}
-        onClick={() => setMode("transit")}
-      >
-        Public Transit
-      </button>
-    </div>
+        <div className="content">
+          <h1 className="main-title">
+            Choose Your <span className="highlight">Transportation</span>
+          </h1>
+          <p className="subtitle">
+            Find the best way to reach your destination through flights or
+            transit.
+          </p>
 
-    {/* Flights Search */}
-    {mode === "flights" && (
-      <div className="flights-layout">
-        {/* Left: Search Form */}
-        <div className="search-column">
-          <form className="search-form" onSubmit={searchFlights}>
-            <div className="form-group">
-              <label htmlFor="origin">Origin</label>
-              <input
-                type="text"
-                id="origin"
-                name="origin"
-                value={form.origin}
-                onChange={onChange}
-                placeholder="e.g., YYZ"
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="dest">Destination</label>
-              <input
-                type="text"
-                id="dest"
-                name="dest"
-                value={form.dest}
-                onChange={onChange}
-                placeholder="e.g., LAX"
-                required
-              />
-            </div>
-
-            <div className="form-group trip-type-toggle">
-  <label>Trip Type:</label>
-  <div className="trip-type-buttons">
-    <button
-      type="button"
-      className={form.tripType === "oneway" ? "active" : ""}
-      onClick={() => setForm({ ...form, tripType: "oneway", returnDate: "" })}
-    >
-      One Way
-    </button>
-    <button
-      type="button"
-      className={form.tripType === "round" ? "active" : ""}
-      onClick={() => setForm({ ...form, tripType: "round" })}
-    >
-      Round Trip
-    </button>
-  </div>
-</div>
-
-
-            <div className="form-group">
-              <label htmlFor="date">Departure Date</label>
-              <input
-                type="date"
-                id="date"
-                name="date"
-                value={form.date}
-                onChange={onChange}
-                required
-              />
-            </div>
-            
-            {form.tripType === "round" && (
-  <div className="form-group">
-    <label htmlFor="returnDate">Return Date</label>
-    <input
-      type="date"
-      id="returnDate"
-      name="returnDate"
-      value={form.returnDate || ""}
-      onChange={onChange}
-    />
-  </div>
-)}
-
-
-
-            <div className="form-group">
-              <label htmlFor="adults">Adults</label>
-              <input
-                type="number"
-                id="adults"
-                name="adults"
-                min="1"
-                value={form.adults}
-                onChange={onChange}
-              />
-            </div>
-
-            <button type="submit" className="search-button">
-              {loading ? "Searching…" : "Search Flights"}
+          {/* Mode Tabs */}
+          <div className="mode-tabs">
+            <button
+              className={mode === "flights" ? "active" : ""}
+              onClick={() => setMode("flights")}
+            >
+              Flights
             </button>
 
-            {error && <p className="error-text">{error}</p>}
-          </form>
-        </div>
+            <button
+              className={mode === "transit" ? "active" : ""}
+              onClick={() => setMode("transit")}
+            >
+              Public Transit
+            </button>
+          </div>
 
-        {/* Right: Results */}
-        <div className="results-column">
-          {offers.length === 0 && !loading && (
-            <p className="no-results"> </p>
-          )}
-
-          {offers.map((o, i) => {
-            const it = o.itineraries?.[0];
-            const segs = it?.segments || [];
-            const first = segs[0];
-            const last = segs[segs.length - 1];
-            const price = o.price?.total;
-            const airlineCode = first?.carrierCode;
-
-            const bookingUrl = getBookingUrl(
-              airlineCode,
-              first?.departure?.iataCode,
-              last?.arrival?.iataCode,
-              form.date,
-              form.tripType === "round" ? form.returnDate : "",
-              form.adults
-            );
-            
-            
-            
-            return (
-              <div key={i} className="flight-card enhanced">
-                <div className="flight-info">
-                  <div className="airline-logo">
-                    <img
-                      src={`https://pics.avs.io/80/40/${airlineCode}.png`}
-                      alt={airlineName(airlineCode)}
-                      onError={(e) => (e.target.style.display = "none")}
+          {/* ✈ Flights */}
+          {mode === "flights" && (
+            <div className="flights-layout">
+              <div className="search-column">
+                <form className="search-form" onSubmit={searchFlights}>
+                  <div className="form-group">
+                    <label htmlFor="origin">Origin</label>
+                    <input
+                      type="text"
+                      id="origin"
+                      name="origin"
+                      value={form.origin}
+                      onChange={onChange}
+                      placeholder="e.g., YYZ"
+                      required
                     />
                   </div>
-                  <div className="flight-route">
-                    <strong>
-                      {first?.departure?.iataCode} → {last?.arrival?.iataCode}
-                    </strong>
-                    <p>
-                      {formatDateTime(first?.departure?.at)} →{" "}
-                      {formatDateTime(last?.arrival?.at)}
-                    </p>
-                    <p>Stops: {Math.max(0, segs.length - 1)}</p>
+
+                  <div className="form-group">
+                    <label htmlFor="dest">Destination</label>
+                    <input
+                      type="text"
+                      id="dest"
+                      name="dest"
+                      value={form.dest}
+                      onChange={onChange}
+                      placeholder="e.g., LAX"
+                      required
+                    />
                   </div>
-                </div>
-                <div className="flight-price-section">
-                  <p className="flight-price">${price}</p>
-                  <a
-                    href={bookingUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="book-button"
-                  >
-                    Book Now →
-                  </a>
-                  <button
-                    className="btn btn-primary"
-                    style={{ marginLeft: 8, marginTop: 8 }}
-                    onClick={() => addToItinerary({
-                      itemType: 'flight',
-                      itemId: `${first?.departure?.iataCode}-${last?.arrival?.iataCode}-${i}`,
-                      itemData: {
-                        route: `${first?.departure?.iataCode} → ${last?.arrival?.iataCode}`,
-                        airline: airlineName(airlineCode),
-                        departure: first?.departure?.at,
-                        arrival: last?.arrival?.at,
-                        stops: Math.max(0, segs.length - 1),
-                        price,
-                      },
-                    })}
-                  >
-                    Save to Itinerary
+
+                  <div className="form-group trip-type-toggle">
+                    <label>Trip Type:</label>
+                    <div className="trip-type-buttons">
+                      <button
+                        type="button"
+                        className={form.tripType === "oneway" ? "active" : ""}
+                        onClick={() =>
+                          setForm((prev) => ({
+                            ...prev,
+                            tripType: "oneway",
+                            returnDate: "",
+                          }))
+                        }
+                      >
+                        One Way
+                      </button>
+                      <button
+                        type="button"
+                        className={form.tripType === "round" ? "active" : ""}
+                        onClick={() =>
+                          setForm((prev) => ({ ...prev, tripType: "round" }))
+                        }
+                      >
+                        Round Trip
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="date">Departure Date</label>
+                    <input
+                      type="date"
+                      id="date"
+                      name="date"
+                      value={form.date}
+                      onChange={onChange}
+                      required
+                    />
+                  </div>
+
+                  {form.tripType === "round" && (
+                    <div className="form-group">
+                      <label htmlFor="returnDate">Return Date</label>
+                      <input
+                        type="date"
+                        id="returnDate"
+                        name="returnDate"
+                        value={form.returnDate || ""}
+                        onChange={onChange}
+                      />
+                    </div>
+                  )}
+
+                  <div className="form-group">
+                    <label htmlFor="adults">Adults</label>
+                    <input
+                      type="number"
+                      id="adults"
+                      name="adults"
+                      min="1"
+                      value={form.adults}
+                      onChange={onChange}
+                    />
+                  </div>
+
+                  <button type="submit" className="search-button">
+                    {loading ? "Searching…" : "Search Flights"}
                   </button>
-                </div>
+
+                  {error && <p className="error-text">{error}</p>}
+                </form>
               </div>
-            );
-          })}
-        </div>
-      </div>
-    )}
 
-    {/* Car Rentals */}
-    {mode === "cars" && (
-      <div className="alt-section">
-<div className="car-rentals">
-  <form
-    className="search-form"
-    onSubmit={async (e) => {
-      e.preventDefault();
-      setLoading(true);
-      setError("");
-      setOffers([]);
-      try {
-        const res = await fetch(
-          apiUrl(`/api/cars?origin=${form.origin}&dest=${form.dest}&pickupDate=${form.date}&returnDate=${form.returnDate}&driversAge=25`)
-        );
-        if (!res.ok) throw new Error("Search failed");
-        const data = await res.json();
-        setOffers(data || []);
-      } catch (e) {
-        setError(e.message);
-      } finally {
-        setLoading(false);
-      }
-    }}
-  >
-    <div className="form-group">
-      <label htmlFor="origin">Pickup Location Code</label>
-      <input
-        id="origin"
-        name="origin"
-        value={form.origin}
-        onChange={onChange}
-        placeholder="e.g. YYZ"
-        required
-      />
-    </div>
+              {/* Right: flight results */}
+              <div className="results-column">
+                {offers.length === 0 && !loading && (
+                  <p className="no-results"></p>
+                )}
 
-    <div className="form-group">
-      <label htmlFor="dest">Drop-Off Location Code</label>
-      <input
-        id="dest"
-        name="dest"
-        value={form.dest}
-        onChange={onChange}
-        placeholder="e.g. LAX"
-      />
-    </div>
+                {offers.map((o, i) => {
+                  const it = o.itineraries?.[0];
+                  const segs = it?.segments || [];
+                  const first = segs[0];
+                  const last = segs[segs.length - 1];
+                  const price = o.price?.total;
+                  const airlineCode = first?.carrierCode;
 
-    <div className="form-group">
-      <label htmlFor="date">Pickup Date</label>
-      <input
-        type="date"
-        id="date"
-        name="date"
-        value={form.date}
-        onChange={onChange}
-        required
-      />
-    </div>
+                  const bookingUrl = getBookingUrl(
+                    airlineCode,
+                    first?.departure?.iataCode,
+                    last?.arrival?.iataCode,
+                    form.date,
+                    form.tripType === "round" ? form.returnDate : "",
+                    form.adults
+                  );
 
-    <div className="form-group">
-      <label htmlFor="returnDate">Return Date</label>
-      <input
-        type="date"
-        id="returnDate"
-        name="returnDate"
-        value={form.returnDate}
-        onChange={onChange}
-      />
-    </div>
+                  return (
+                    <div key={i} className="flight-card enhanced">
+                      <div className="flight-info">
+                        <div className="airline-logo">
+                          <img
+                            src={`https://pics.avs.io/80/40/${airlineCode}.png`}
+                            alt={airlineName(airlineCode)}
+                            onError={(e) => (e.target.style.display = "none")}
+                          />
+                        </div>
+                        <div className="flight-route">
+                          <strong>
+                            {first?.departure?.iataCode} →{" "}
+                            {last?.arrival?.iataCode}
+                          </strong>
+                          <p>
+                            {formatDateTime(first?.departure?.at)} →{" "}
+                            {formatDateTime(last?.arrival?.at)}
+                          </p>
+                          <p>Stops: {Math.max(0, segs.length - 1)}</p>
+                        </div>
+                      </div>
+                      <div className="flight-price-section">
+                        <a
+                          href={bookingUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="book-button"
+                        >
+                          Book Now →
+                        </a>
+                        <button
+                          className="btn btn-primary"
+                          style={{ marginLeft: 8, marginTop: 8 }}
+                          onClick={() =>
+                            addToItinerary({
+                              itemType: "flight",
+                              itemId: `${first?.departure?.iataCode}-${last?.arrival?.iataCode}-${i}`,
+                              itemData: {
+                                route: `${first?.departure?.iataCode} → ${last?.arrival?.iataCode}`,
+                                airline: airlineName(airlineCode),
+                                departure: first?.departure?.at,
+                                arrival: last?.arrival?.at,
+                                stops: Math.max(0, segs.length - 1),
+                                price,
+                              },
+                            })
+                          }
+                        >
+                          Save to Itinerary
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
-    <button type="submit" className="search-button">
-      {loading ? "Searching…" : "🚗 Search Cars"}
-    </button>
+          {/* 🚌 Public Transit */}
+          {mode === "transit" && (
+            <div className="alt-section transit-layout">
+              {/* Left: Search form */}
+              <div className="transit-form-card">
+                <form onSubmit={searchTransit} className="search-form">
+                  <div className="form-group">
+                    <label htmlFor="transitOrigin">Starting Location</label>
+                    <input
+                      id="transitOrigin"
+                      name="origin"
+                      value={transitForm.origin}
+                      onChange={onTransitChange}
+                      placeholder="e.g. Union Station Toronto"
+                      required
+                    />
+                  </div>
 
-    {error && <p className="error-text">{error}</p>}
-  </form>
+                  <div className="form-group">
+                    <label htmlFor="transitDestination">Destination</label>
+                    <input
+                      id="transitDestination"
+                      name="destination"
+                      value={transitForm.destination}
+                      onChange={onTransitChange}
+                      placeholder="e.g. Humber College"
+                      required
+                    />
+                  </div>
 
-  <div className="results-column">
-    {offers.length === 0 && !loading && <p></p>}
-    {offers.map((car, i) => (
-      <div key={i} className="car-card">
-        <h3>{car.vehicle?.model}</h3>
-        <p>{car.vehicle?.make} – {car.vehicle?.category}</p>
-        <p>Price: ${car.price?.total}</p>
-        <p>Pickup: {car.pickup?.location?.code}</p>
-        <p>Drop-Off: {car.dropOff?.location?.code}</p>
-      </div>
-    ))}
-  </div>
-</div>
-      </div>
-      
-    )}
+                  <button type="submit" className="search-button">
+                    {transitLoading ? "Searching…" : "Search Transit Routes"}
+                  </button>
 
+                  {transitError && <p className="error-text">{transitError}</p>}
+                </form>
+              </div>
 
+              {/* Right: Results panel */}
+              <div className="transit-results-card">
+                {!transitRoute && !transitLoading && !transitError && (
+                  <p className="no-results">
+                    Enter a start and end point to see transit directions.
+                  </p>
+                )}
 
-{/* Public Transit */}
-{mode === "transit" && (
-            <div className="alt-section">
+                {transitLoading && (
+                  <p className="no-results">Finding the best route…</p>
+                )}
 
+                {transitRoute && (
+                  <div className="transit-results-inner">
+                    <div className="transit-summary">
+                      <h2>
+                        {transitRoute.origin} → {transitRoute.destination}
+                      </h2>
+                      <div className="summary-meta">
+                        <span>
+                          <strong>Duration:</strong> {transitRoute.duration}
+                        </span>
+                        <span>
+                          <strong>Distance:</strong> {transitRoute.distance}
+                        </span>
+                      </div>
+                    </div>
+
+                    <ol className="transit-steps-list">
+                      {transitRoute.steps.map((step, idx) => {
+                        const isTransit = step.travelMode === "TRANSIT";
+                        const icon = isTransit ? "🚌" : "🚶‍♀️";
+
+                        return (
+                          <li key={idx} className="transit-step">
+                            <div className="step-icon">{icon}</div>
+
+                            <div className="step-body">
+                              <div className="step-title-row">
+                                <span className="step-index">{idx + 1}.</span>
+                                <span className="step-mode">
+                                  {isTransit ? "TRANSIT" : "WALKING"}
+                                </span>
+                              </div>
+
+                              <p
+                                className="step-instruction"
+                                dangerouslySetInnerHTML={{
+                                  __html: step.instruction || "",
+                                }}
+                              />
+
+                              <div className="step-meta">
+                                {step.distance && <span>{step.distance}</span>}
+                                {step.distance && step.duration && (
+                                  <span> • </span>
+                                )}
+                                {step.duration && <span>{step.duration}</span>}
+                              </div>
+
+                              {isTransit && step.transit && (
+                                <div className="transit-extra">
+                                  <span className="line-pill">
+                                    {step.transit.lineName || "Bus"}
+                                  </span>
+
+                                  <div className="extra-grid">
+                                    <p>
+                                      <strong>From</strong>{" "}
+                                      {step.transit.departureStop}
+                                      {step.transit.departureTime && (
+                                        <span className="time-pill">
+                                          {step.transit.departureTime}
+                                        </span>
+                                      )}
+                                    </p>
+                                    <p>
+                                      <strong>To</strong>{" "}
+                                      {step.transit.arrivalStop}
+                                      {step.transit.arrivalTime && (
+                                        <span className="time-pill">
+                                          {step.transit.arrivalTime}
+                                        </span>
+                                      )}
+                                    </p>
+                                    <p>
+                                      <strong>Stops</strong>{" "}
+                                      {step.transit.numStops}
+                                    </p>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ol>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>

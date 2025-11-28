@@ -1,7 +1,9 @@
+console.log("🟢 index.js loaded from:", __dirname);
 require("dotenv").config({ path: require("path").join(__dirname, "../../.env") });
 const express = require("express");
 const cors = require("cors");
 const { createProxyMiddleware } = require("http-proxy-middleware");
+const transitRoutes = require("./transitRoutes"); 
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -93,12 +95,14 @@ const itineraryServiceProxy = createProxyMiddleware({
 app.use("/user", userServiceProxy);
 
 // Routes - API services
+app.use("/api/transit", transitRoutes);
 app.use("/api/hotels", hotelServiceProxy);
 app.use("/api/flights", flightServiceProxy);
 app.use("/api/activities", activityServiceProxy);
 app.use("/api/places", activityServiceProxy);
 app.use("/api/cars", carServiceProxy);
 app.use("/api/itinerary", itineraryServiceProxy);
+
 
 // 404 handler
 app.use((req, res) => {

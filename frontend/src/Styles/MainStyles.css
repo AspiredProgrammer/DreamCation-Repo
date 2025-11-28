@@ -1041,3 +1041,407 @@
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 	margin-bottom: 1rem;
 }
+
+.transit-card {
+	background: #ffffff;
+	color: #333;
+	padding: 1.5rem;
+	border-radius: 18px;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  }
+  
+  .transit-steps {
+	margin-top: 1rem;
+	padding-left: 1.25rem;
+  }
+  
+  .transit-step {
+	margin-bottom: 0.75rem;
+  }
+  
+  .transit-meta {
+	margin-left: 0.5rem;
+	font-size: 0.9rem;
+	opacity: 0.9;
+  }
+  
+  /* === Transit Card Styling === */
+.transit-card {
+  background: #fff;
+  padding: 25px;
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  color: #333;
+  width: 100%;
+}
+
+.transit-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+/* Summary row */
+.transit-summary {
+  display: flex;
+  gap: 40px;
+  margin-bottom: 20px;
+}
+
+.summary-label {
+  font-size: 0.85rem;
+  opacity: 0.6;
+}
+
+.summary-value {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+/* Steps list */
+.steps-list {
+  margin-top: 10px;
+}
+
+.step-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 18px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.step-icon {
+  width: 40px;
+  font-size: 1.6rem;
+  text-align: center;
+}
+
+.step-content {
+  flex: 1;
+}
+
+.step-instruction {
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.step-sub {
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+/* Transit extra block */
+.transit-extra {
+  margin-top: 8px;
+  background: #f7f9ff;
+  border-left: 4px solid #3b82f6;
+  padding: 10px 15px;
+  border-radius: 8px;
+}
+
+.line-badge {
+  background: #3b82f6;
+  color: #fff;
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.extra-info p {
+  margin: 3px 0;
+  font-size: 0.9rem;
+}
+
+/* ===== Public Transit (Google Maps–style panel) ===== */
+
+.transit-layout {
+	display: grid;
+	grid-template-columns: minmax(0, 280px) minmax(0, 1fr);
+	gap: 2rem;
+	align-items: flex-start;
+  }
+  
+  .transit-form-card,
+  .transit-results-card {
+	background: rgba(120, 82, 82, 0.96);
+	border-radius: 24px;
+	padding: 24px 28px;
+	box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
+	backdrop-filter: blur(10px);
+  }
+  
+  .transit-results-card {
+	max-height: 540px;
+	overflow-y: auto;
+  }
+  
+  .transit-results-inner {
+	display: flex;
+	flex-direction: column;
+  }
+  
+  .transit-summary h2 {
+	font-size: 1.1rem;
+	margin: 0 0 0.4rem;
+  }
+  
+  .transit-summary .summary-meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1.5rem;
+	font-size: 0.9rem;
+	color: #4b5563;
+	margin-bottom: 1.1rem;
+  }
+  
+  .transit-steps-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+  }
+  
+  .transit-step {
+	display: grid;
+	grid-template-columns: 32px minmax(0, 1fr);
+	gap: 0.75rem;
+	padding: 0.75rem 0;
+	border-top: 1px solid #e5e7eb;
+  }
+  
+  .transit-step:first-child {
+	border-top: none;
+  }
+  
+  .step-icon {
+	width: 28px;
+	height: 28px;
+	border-radius: 999px;
+	background: #cbdcff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 1.1rem;
+  }
+  
+  .step-body {
+	font-size: 0.9rem;
+  }
+  
+  .step-title-row {
+	display: flex;
+	align-items: baseline;
+	gap: 0.4rem;
+	font-weight: 600;
+  }
+  
+  .step-index {
+	color: #6b7280;
+  }
+  
+  .step-mode {
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	font-size: 0.78rem;
+	color: #374151;
+  }
+  
+  .step-instruction {
+	margin: 0.2rem 0 0.35rem;
+	color: #111827;
+  }
+  
+  .step-meta {
+	font-size: 0.8rem;
+	color: #6b7280;
+  }
+  
+  .transit-extra {
+	margin-top: 0.4rem;
+	border-left: 3px solid #facc15;
+	padding-left: 0.75rem;
+  }
+  
+  .line-pill {
+	display: inline-block;
+	padding: 0.12rem 0.6rem;
+	border-radius: 999px;
+	background: #48f3ff;
+	color: #92400e;
+	font-size: 0.75rem;
+	font-weight: 600;
+	margin-bottom: 0.3rem;
+  }
+  
+  .extra-grid p {
+	margin: 0.08rem 0;
+	font-size: 0.8rem;
+  }
+  
+  .time-pill {
+	display: inline-block;
+	margin-left: 0.35rem;
+	padding: 0.05rem 0.4rem;
+	border-radius: 999px;
+	background: #5cdf97;
+	color: #52cedc;
+	font-size: 0.75rem;
+  }
+  
+  .no-results {
+	color: #6b7280;
+	font-size: 0.9rem;
+  }
+  
+/* ========= PUBLIC TRANSIT LAYOUT ========= */
+
+.transit-layout {
+	display: flex;
+	gap: 2rem;
+	align-items: flex-start;
+	margin-top: 2rem;
+  }
+  
+  /* Left card: search form */
+  .transit-form-card {
+	width: 260px;
+	background: #ffffff;
+	border-radius: 24px;
+	padding: 1.5rem 1.75rem;
+	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+  }
+  
+  /* Right card: results */
+  .transit-results-card {
+	flex: 1;
+	background: #ffffff;
+	border-radius: 24px;
+	padding: 2rem 2.5rem;
+	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+	max-height: 70vh;
+	overflow-y: auto;
+  }
+  
+  /* Summary at the top (origin → destination) */
+  .transit-summary h2 {
+	font-size: 1.5rem;
+	font-weight: 600;
+	margin-bottom: 0.5rem;
+  }
+  
+  .transit-summary .summary-meta {
+	display: flex;
+	gap: 1.5rem;
+	font-size: 0.95rem;
+	color: #555;
+  }
+  
+  /* Step list (similar feel to Google directions) */
+  .transit-steps-list {
+	list-style: none;
+	margin: 1.5rem 0 0;
+	padding: 0;
+  }
+  
+  .transit-step {
+	display: flex;
+	gap: 1rem;
+	padding: 1rem 0;
+	border-top: 1px solid #e6e635;
+  }
+  
+  .transit-step:first-of-type {
+	border-top: none;
+  }
+  
+  .step-icon {
+	font-size: 1.5rem;
+	margin-top: 4px;
+  }
+  
+  .step-body {
+	flex: 1;
+  }
+  
+  .step-title-row {
+	display: flex;
+	align-items: baseline;
+	gap: 0.5rem;
+	margin-bottom: 0.25rem;
+  }
+  
+  .step-index {
+	font-weight: 600;
+  }
+  
+  .step-mode {
+	font-size: 0.85rem;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: #777;
+  }
+  
+  .step-instruction {
+	margin: 0.15rem 0 0.35rem;
+  }
+  
+  .step-meta {
+	font-size: 0.85rem;
+	color: #666;
+  }
+  
+  /* Extra details for bus segments */
+  .transit-extra {
+	margin-top: 0.4rem;
+	padding-left: 0.1rem;
+  }
+  
+  .line-pill {
+	display: inline-block;
+	font-size: 0.8rem;
+	font-weight: 600;
+	background: #ffe680;
+	color: #664d00;
+	border-radius: 999px;
+	padding: 0.15rem 0.65rem;
+	margin-bottom: 0.35rem;
+  }
+  
+  .extra-grid p {
+	margin: 0.1rem 0;
+	font-size: 0.9rem;
+  }
+  
+  .time-pill {
+	display: inline-block;
+	margin-left: 0.35rem;
+	font-size: 0.78rem;
+	padding: 0.1rem 0.45rem;
+	border-radius: 999px;
+	background: #bcb8e3;
+	color: rgb(85, 85, 85);
+  }
+  
+  /* Empty / loading text */
+  .transit-results-card .no-results {
+	color: #666;
+	font-size: 0.95rem;
+  }
+  
+  .transit-results-card {
+	color: #222 !important;
+  }
+  
+  .transit-results-card h2 {
+	color: rgb(116, 130, 187) !important;
+	font-weight: 600;
+  }
+  
+  .transit-step,
+  .transit-step * {
+	color: rgb(47, 63, 128)  !important;
+  }
+  
