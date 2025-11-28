@@ -105,12 +105,15 @@ app.use((req, res) => {
 	res.status(404).json({ error: "Route not found" });
 });
 
-// Start server
-app.listen(PORT, () => {
-	console.log(`🚪 API Gateway running on http://localhost:${PORT}`);
-	console.log(`📊 Health check: http://localhost:${PORT}/health`);
-	console.log(`📡 Routing requests to microservices...`);
-});
-
+// Export app for Vercel serverless functions
 module.exports = app;
+
+// Only start server if not on Vercel (local development)
+if (process.env.VERCEL !== "1" && !process.env.VERCEL_ENV) {
+	app.listen(PORT, () => {
+		console.log(`🚪 API Gateway running on http://localhost:${PORT}`);
+		console.log(`📊 Health check: http://localhost:${PORT}/health`);
+		console.log(`📡 Routing requests to microservices...`);
+	});
+}
 

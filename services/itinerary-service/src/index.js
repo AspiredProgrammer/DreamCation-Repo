@@ -30,12 +30,15 @@ app.get("/health", (req, res) => {
 // Routes
 app.use("/api", itineraryRoutes);
 
-// Start server
-app.listen(PORT, () => {
-	console.log(`📅 Itinerary Service running on ${process.env.ITINERARY_ENDPOINT}`);
-	console.log(`📊 Health check: http://localhost:${PORT}/health`);
-	console.log(`🔑 JWT Secret configured: ${!!process.env.JWT_SECRET}`);
-});
-
+// Export app for Vercel serverless functions
 module.exports = app;
+
+// Only start server if not on Vercel (local development)
+if (process.env.VERCEL !== "1" && !process.env.VERCEL_ENV) {
+	app.listen(PORT, () => {
+		console.log(`📅 Itinerary Service running on ${process.env.ITINERARY_ENDPOINT || `http://localhost:${PORT}`}`);
+		console.log(`📊 Health check: http://localhost:${PORT}/health`);
+		console.log(`🔑 JWT Secret configured: ${!!process.env.JWT_SECRET}`);
+	});
+}
 

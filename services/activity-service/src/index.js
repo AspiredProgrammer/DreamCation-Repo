@@ -30,13 +30,16 @@ app.get("/health", (req, res) => {
 // Routes
 app.use("/api", activityRoutes);
 
-// Start server
-app.listen(PORT, () => {
-	console.log(`🎉 Activity Service running on ${process.env.ACTIVITY_ENDPOINT}`);
-	console.log(`📊 Health check: http://localhost:${PORT}/health`);
-	console.log(`🔑 PredictHQ configured: ${!!process.env.PREDICTHQ_TOKEN}`);
-	console.log(`🔑 Google API configured: ${!!process.env.GOOGLE_API_KEY}`);
-});
-
+// Export app for Vercel serverless functions
 module.exports = app;
+
+// Only start server if not on Vercel (local development)
+if (process.env.VERCEL !== "1" && !process.env.VERCEL_ENV) {
+	app.listen(PORT, () => {
+		console.log(`🎉 Activity Service running on ${process.env.ACTIVITY_ENDPOINT || `http://localhost:${PORT}`}`);
+		console.log(`📊 Health check: http://localhost:${PORT}/health`);
+		console.log(`🔑 PredictHQ configured: ${!!process.env.PREDICTHQ_TOKEN}`);
+		console.log(`🔑 Google API configured: ${!!process.env.GOOGLE_API_KEY}`);
+	});
+}
 

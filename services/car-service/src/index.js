@@ -30,12 +30,15 @@ app.get("/health", (req, res) => {
 // Routes
 app.use("/api", carRoutes);
 
-// Start server
-app.listen(PORT, () => {
-	console.log(`🚗 Car Service running on ${process.env.CAR_ENDPOINT}`);
-	console.log(`📊 Health check: http://localhost:${PORT}/health`);
-	console.log(`🔑 Amadeus configured: ${!!process.env.AMA_KEY}`);
-});
-
+// Export app for Vercel serverless functions
 module.exports = app;
+
+// Only start server if not on Vercel (local development)
+if (process.env.VERCEL !== "1" && !process.env.VERCEL_ENV) {
+	app.listen(PORT, () => {
+		console.log(`🚗 Car Service running on ${process.env.CAR_ENDPOINT || `http://localhost:${PORT}`}`);
+		console.log(`📊 Health check: http://localhost:${PORT}/health`);
+		console.log(`🔑 Amadeus configured: ${!!process.env.AMA_KEY}`);
+	});
+}
 
