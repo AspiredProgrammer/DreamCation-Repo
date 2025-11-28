@@ -11,8 +11,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
 	cors({
-		//http://localhost:3000
-		origin: [process.env.FRONTEND_ENDPOINT],
+		origin: [
+			process.env.FRONTEND_ENDPOINT, // Production frontend
+			process.env.API_GATEWAY_ENDPOINT, // API Gateway (requests come through gateway)
+			"http://localhost:3000", // Development frontend
+			"http://localhost:3001", // Development API Gateway
+		].filter(Boolean), // Remove undefined values
 		methods: ["GET", "POST", "OPTIONS"],
 		credentials: true,
 	})
