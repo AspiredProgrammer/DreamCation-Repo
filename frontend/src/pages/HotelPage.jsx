@@ -4,6 +4,7 @@ import NavBar from "../Components/Navbar";
 import Footer from "../Components/Footer";
 import "../Styles/MainStyles.css";
 import { useItinerary } from "../contexts/ItineraryContext";
+import { apiUrl } from "../config/api";
 
 const HotelPage = () => {
 	const { addToItinerary } = useItinerary();
@@ -142,7 +143,7 @@ const HotelPage = () => {
 				occupants: numOccupants.toString(),
 			});
 
-			const response = await fetch(`/api/hotels?${params.toString()}`);
+			const response = await fetch(apiUrl(`/api/hotels?${params.toString()}`));
 
 			// Check if response is JSON before parsing
 			const contentType = response.headers.get("content-type");
@@ -227,7 +228,7 @@ const HotelPage = () => {
 				occupants: numOccupants.toString(),
 			});
 
-			const response = await fetch(`/api/hotels?${params.toString()}`);
+			const response = await fetch(apiUrl(`/api/hotels?${params.toString()}`));
 
 			// Check if response is JSON before parsing
 			const contentType = response.headers.get("content-type");

@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import NavBar from "../Components/Navbar";
 import Footer from "../Components/Footer";
 import "../Styles/Login.css";
+import { apiUrl } from "../config/api";
 
 const LoginPage = () => {
 	const [username, setUsername] = useState("");
@@ -22,8 +23,8 @@ const LoginPage = () => {
 		}
 		try {
 			console.log(process.env);
-			// http://localhost:8001/user/login
-			const response = await fetch(process.env.USER_ENDPOINT + `user/login`, {
+			// Use API Gateway endpoint
+			const response = await fetch(apiUrl('/user/login'), {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",

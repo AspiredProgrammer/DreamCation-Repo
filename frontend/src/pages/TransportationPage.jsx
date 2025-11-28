@@ -6,6 +6,7 @@ import { useItinerary } from "../contexts/ItineraryContext";
 import planeBG from "../assets/planebg.jpg";
 import carBG from "../assets/carbg.jpeg";
 import busBG from "../assets/busbg.jpg";
+import { apiUrl } from "../config/api";
 
 
 
@@ -107,7 +108,7 @@ export default function TransportationPage() {
     setOffers([]);
     try {
       const res = await fetch(
-        `/api/flights?origin=${form.origin}&dest=${form.dest}&date=${form.date}&adults=${form.adults}`
+        apiUrl(`/api/flights?origin=${form.origin}&dest=${form.dest}&date=${form.date}&adults=${form.adults}`)
       );
       if (!res.ok) throw new Error("Search failed");
       const data = await res.json();
@@ -362,7 +363,7 @@ export default function TransportationPage() {
       setOffers([]);
       try {
         const res = await fetch(
-          `/api/cars?origin=${form.origin}&dest=${form.dest}&pickupDate=${form.date}&returnDate=${form.returnDate}&driversAge=25`
+          apiUrl(`/api/cars?origin=${form.origin}&dest=${form.dest}&pickupDate=${form.date}&returnDate=${form.returnDate}&driversAge=25`)
         );
         if (!res.ok) throw new Error("Search failed");
         const data = await res.json();

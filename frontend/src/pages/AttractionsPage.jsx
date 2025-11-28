@@ -3,6 +3,7 @@ import NavBar from "../Components/Navbar";
 import Footer from "../Components/Footer";
 import "../Styles/Activities.css";
 import { useItinerary } from "../contexts/ItineraryContext";
+import { apiUrl } from "../config/api";
 
 const CLIENT_PAGE_SIZE = 4;
 const FETCH_PAGE_SIZE = 50;
@@ -49,7 +50,7 @@ const ActivitiesPage = () => {
 
       if (eventDate) qs.append("eventDate", eventDate);
 
-      const res = await fetch(`/api/activities/by-city?${qs.toString()}`);
+      const res = await fetch(apiUrl(`/api/activities/by-city?${qs.toString()}`));
       if (!res.ok) throw new Error(await res.text());
       const json = await res.json();
 
@@ -89,7 +90,7 @@ const ActivitiesPage = () => {
         pageSize: String(FETCH_PAGE_SIZE),
       });
 
-      const res = await fetch(`/api/places/by-city?${qs.toString()}`);
+      const res = await fetch(apiUrl(`/api/places/by-city?${qs.toString()}`));
       if (!res.ok) throw new Error(await res.text());
       const json = await res.json();
 
