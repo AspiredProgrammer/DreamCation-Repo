@@ -43,41 +43,41 @@ const SupportPage = () => {
 	];
 	const [message, setMessage] = useState("");
 
-	const handleSubmit = async (e) => {
-		console.log("ENDPOINT is:", process.env.REACT_APP_ENDPOINT);
+	// const handleSubmit = async (e) => {
+	// 	console.log("ENDPOINT is:", process.env.REACT_APP_ENDPOINT);
 
-		e.preventDefault();
+	// 	e.preventDefault();
 
-		if (!message) {
-			toast.error("Cannot submit empty field!", { position: "bottom-right" });
-		}
+	// 	if (!message) {
+	// 		toast.error("Cannot submit empty field!", { position: "bottom-right" });
+	// 	}
 
-		try {
-			console.log(process.env);
-			const response = await fetch(apiUrl('/user/support'), {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					...(isAuthorized && token
-						? { Authorization: `Bearer ${token}` }
-						: {}),
-				},
-				body: JSON.stringify(message),
-			});
+	// 	try {
+	// 		console.log(process.env);
+	// 		const response = await fetch(apiUrl("/user/support"), {
+	// 			method: "POST",
+	// 			headers: {
+	// 				"Content-Type": "application/json",
+	// 				...(isAuthorized && token
+	// 					? { Authorization: `Bearer ${token}` }
+	// 					: {}),
+	// 			},
+	// 			body: JSON.stringify(message),
+	// 		});
 
-			const data = await response.json();
-			if (!response.ok) {
-				toast.error("Error: " + data, { position: "top-right" });
-			} else {
-				toast.success("Message sent!", { position: "top-right" });
+	// 		const data = await response.json();
+	// 		if (!response.ok) {
+	// 			toast.error("Error: " + data, { position: "top-right" });
+	// 		} else {
+	// 			toast.success("Message sent!", { position: "top-right" });
 
-				setMessage("");
-			}
-		} catch (error) {
-			console.error("Error registering user:", error);
-			toast.error("Error registering user!", { position: "top-right" });
-		}
-	};
+	// 			setMessage("");
+	// 		}
+	// 	} catch (error) {
+	// 		console.error("Error registering user:", error);
+	// 		toast.error("Error registering user!", { position: "top-right" });
+	// 	}
+	// };
 
 	const handleChange = (e) => {
 		setMessage(e.target.value);
@@ -102,7 +102,7 @@ const SupportPage = () => {
 							))}
 						</Accordion>
 
-						<section>
+						{/* <section>
 							<h2 style={{ color: "white" }}>Support Form</h2>
 							<p style={{ textDecoration: "italic", color: "white" }}>
 								Have any questions or concerns? Want to share it with us? Submit
@@ -116,9 +116,9 @@ const SupportPage = () => {
 							</div>
 
 							<button type="submit" className="search-button">
-								Complete registration
+								Submit questions
 							</button>
-						</form>
+						</form> */}
 					</div>
 				</div>
 			</div>
