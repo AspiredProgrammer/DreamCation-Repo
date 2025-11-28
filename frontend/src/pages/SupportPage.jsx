@@ -6,6 +6,7 @@ import "../Styles/FAQ.css";
 // import "../Styles/MainStyles.css";
 import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";
+import { apiUrl } from "../config/api";
 
 const SupportPage = () => {
 	const token = localStorage.getItem("token");
@@ -53,7 +54,7 @@ const SupportPage = () => {
 
 		try {
 			console.log(process.env);
-			const response = await fetch(`/user/support`, {
+			const response = await fetch(apiUrl('/user/support'), {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",

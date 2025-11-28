@@ -5,6 +5,7 @@ import { jwtDecode } from "jwt-decode";
 import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";
 import "../Styles/Register.css";
+import { apiUrl } from "../config/api";
 
 const RegisterPage = () => {
 	const [errors, setErrors] = useState([]);
@@ -68,8 +69,8 @@ const RegisterPage = () => {
 
 		try {
 			console.log(process.env);
-			//http://localhost:8001/user/register
-			const response = await fetch(process.env.USER_ENDPOINT + `user/register`, {
+			// Use API Gateway endpoint
+			const response = await fetch(apiUrl('/user/register'), {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",

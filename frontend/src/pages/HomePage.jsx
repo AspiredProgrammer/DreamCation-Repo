@@ -16,8 +16,14 @@ const HomePage = () => {
 	const handleSearch = (e) => {
 		e.preventDefault();
 		if (destination && checkInDate && checkOutDate) {
-			// Navigate to hotel page with search parameters
-			navigate(`/hotels?city=${encodeURIComponent(destination.trim())}`);
+			// Navigate to hotel page with all search parameters
+			const params = new URLSearchParams({
+				city: destination.trim(),
+				checkIn: checkInDate,
+				checkOut: checkOutDate,
+				occupants: guests.toString()
+			});
+			navigate(`/hotels?${params.toString()}`);
 		} else {
 			alert("Please fill in all required fields");
 		}

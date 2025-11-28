@@ -170,39 +170,38 @@ exports.getHotelsByCity = async (req, res, next) => {
 		const checkOutDate = new Date(checkOut);
 		const numNights = Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24)) || 1;
 
-		// Apply pagination early to avoid processing unnecessary hotels
-		const pageNum = parseInt(page, 10);
-		const limitNum = parseInt(limit, 10);
-		const startIndex = (pageNum - 1) * limitNum;
-		const endIndex = startIndex + limitNum;
-		const paginatedProperties = properties.slice(startIndex, endIndex);
-
-		// Process only the hotels we need for this page
-		for (const property of paginatedProperties) {
+		// Process ALL hotels at once - send everything to frontend for client-side pagination
+		// This eliminates the need for multiple slow API calls
+		for (const property of properties) {
 			const hotel = property || {};
 
 			// Extract price information from TripAdvisor format
-			// IMPORTANT: The TripAdvisor API returns priceForDisplay as the TOTAL price for the entire stay (checkIn to checkOut)
-			// priceForDisplay can be a string like "$835" or an object with { text: "$835" }
-			let priceValue = null;
+			// The TripAdvisor API returns priceForDisplay as the price per night
+			// priceForDisplay can be a string like "$208" or an object with { text: "$208" }
+			let pricePerNight = null;
 			const priceDisplay = hotel.priceForDisplay;
 
 			if (priceDisplay) {
 				if (typeof priceDisplay === 'string') {
-					// Remove currency symbols and parse (e.g., "$835" -> 835)
-					priceValue = parseFloat(priceDisplay.replace(/[^0-9.]/g, ''));
+					// Remove currency symbols and parse (e.g., "$208" -> 208)
+					pricePerNight = parseFloat(priceDisplay.replace(/[^0-9.]/g, ''));
 				} else if (priceDisplay.text) {
-					// Object format: { text: "$835" }
-					priceValue = parseFloat(priceDisplay.text.replace(/[^0-9.]/g, ''));
+					// Object format: { text: "$208" }
+					pricePerNight = parseFloat(priceDisplay.text.replace(/[^0-9.]/g, ''));
 				}
 			}
 
-			// Calculate price per night (API returns total, so we divide by nights)
-			const pricePerNight = priceValue && numNights > 0 ? (priceValue / numNights).toFixed(2) : null;
+			// Calculate total price as pricePerNight * nights
+			let totalPrice = null;
+
+			if (pricePerNight && numNights > 0) {
+				// Total price = price per night * number of nights
+				totalPrice = parseFloat((pricePerNight * numNights).toFixed(2));
+			}
 
 			// Log for debugging price inconsistencies
-			if (priceValue && (priceValue < 50 || (numNights > 1 && priceValue < numNights * 20))) {
-				console.warn(`Unusually low price detected for ${hotel.title || 'hotel'}: $${priceValue} for ${numNights} night(s). API might be returning incorrect pricing.`);
+			if (pricePerNight && (pricePerNight < 20 || pricePerNight > 2000)) {
+				console.warn(`Unusually low or high price per night detected for ${hotel.title || 'hotel'}: $${pricePerNight}/night. API might be returning incorrect pricing.`);
 			}
 
 			// Get rating from bubbleRating object
@@ -258,8 +257,8 @@ exports.getHotelsByCity = async (req, res, next) => {
 				name: hotelName,
 				vicinity: vicinity,
 				rating: rating,
-				price: priceValue,
-				pricePerNight: pricePerNight ? parseFloat(pricePerNight) : null,
+				price: totalPrice, // Total price = pricePerNight * nights
+				pricePerNight: pricePerNight, // Price per night from API
 				price_level: priceLevel,
 				place_id: hotelId,
 				url: url,
@@ -269,24 +268,16 @@ exports.getHotelsByCity = async (req, res, next) => {
 				checkIn: checkIn,
 				checkOut: checkOut,
 				currency: "USD", // TripAdvisor API uses USD by default
+				hasPrice: totalPrice !== null && totalPrice > 0, // Flag to indicate if price is available
 			});
 		}
 
-		// Pagination info (already calculated above, reuse variables)
-		const totalResults = hotelsData.pagination?.totalResults ||
-			hotelsData.totalResults ||
-			properties.length;
-		const hasMore = endIndex < totalResults;
+		// Return ALL hotels - frontend will handle pagination and sorting
+		const totalResults = hotels.length;
 
 		res.json({
 			hotels: hotels,
-			pagination: {
-				currentPage: pageNum,
-				limit: limitNum,
-				totalHotels: totalResults,
-				hasMore: hasMore,
-				showing: `${Math.min(pageNum * limitNum, totalResults)} of ${totalResults}`,
-			},
+			totalHotels: totalResults,
 		});
 	} catch (error) {
 		console.error("Error in /api/hotels:", error);
